@@ -7,6 +7,7 @@ import hijriMonthsDesc from '@/data/hijri-months-desc.json';
 import CalendarGrid from '@/components/calendar/CalendarGrid.astro';
 import TodayWidget from '@/components/islands/TodayWidget.tsx';
 import PrayerBar from '@/components/islands/PrayerBar.tsx';
+import FaqAccordion from '@/components/islands/FaqAccordion.tsx';
 
 // ── Tanggal hari ini (server-side) ───────────────────────────────────────────
 const today       = new Date();
@@ -87,11 +88,70 @@ const metaDesc = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ` +
   `${todayHijri.day} ${todayHijri.monthName} ${todayHijri.year} H = ` +
   `${todayJawa.weton} (Neptu ${todayJawa.neptu}). ` +
   `Kalender Islam lengkap Hijriah, Masehi, dan Jawa untuk Muslim Indonesia.`;
+
+// ── FAQ Data (fully dynamic — zero hardcode) ─────────────────────────────────
+const idulFitriData = officialDates.find(d => d.event === 'idul_fitri');
+const hijriYearNow  = todayHijri.year;
+
+function fmtTanggal(dateStr: string | null): string {
+  if (!dateStr) return 'belum ditentukan';
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('id-ID', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  });
+}
+
+const idulFitriResmi        = fmtTanggal(idulFitriData?.tanggal_resmi ?? null);
+const idulFitriMuhammadiyah = fmtTanggal(idulFitriData?.tanggal_muhammadiyah ?? null);
+const idulFitriPerkiraan    = fmtTanggal(idulFitriData?.bestDate ?? null);
+const isIdulFitriConfirmed  = idulFitriData?.isConfirmed ?? false;
+
+const idulFitriAnswer = isIdulFitriConfirmed
+  ? `Idul Fitri ${hijriYearNow} H telah ditetapkan secara resmi oleh Kementerian Agama RI pada <strong>${idulFitriResmi}</strong>. Muhammadiyah juga menetapkan Idul Fitri ${currentYear} pada <strong>${idulFitriMuhammadiyah}</strong>.`
+  : `Idul Fitri ${hijriYearNow} H diperkirakan jatuh pada <strong>${idulFitriPerkiraan}</strong> berdasarkan kalkulasi hisab. Tanggal resmi akan ditetapkan melalui sidang isbat Kementerian Agama RI.${idulFitriMuhammadiyah !== 'belum ditentukan' ? ` Muhammadiyah menetapkan Idul Fitri ${currentYear} pada <strong>${idulFitriMuhammadiyah}</strong> berdasarkan metode hisab hakiki wujudul hilal.` : ''}`;
+
+const q1Answer = `Hari ini, ${hariIni} ${tanggal} ${bulan} ${currentYear}, bertepatan dengan <strong>${todayHijri.day} ${todayHijri.monthName} ${todayHijri.year} H</strong> dalam kalender Hijriah. Kalender Hijriah adalah kalender lunar (berdasarkan peredaran bulan) yang digunakan umat Islam untuk menentukan waktu ibadah, puasa, dan hari raya.`;
+
+const faqItems = [
+  {
+    question: `Hari ini tanggal berapa Hijriah?`,
+    answer: q1Answer,
+  },
+  {
+    question: `Idul Fitri ${currentYear} jatuh tanggal berapa?`,
+    answer: idulFitriAnswer,
+  },
+  {
+    question: `Apa perbedaan kalender Masehi dan Hijriah?`,
+    answer: `Kalender Masehi (Gregorian) berbasis peredaran matahari dan memiliki 365–366 hari per tahun. Kalender Hijriah berbasis peredaran bulan dan memiliki 354–355 hari per tahun. Karena perbedaan ini, tanggal-tanggal Islam seperti Ramadan bergeser sekitar <strong>10–11 hari lebih awal</strong> setiap tahunnya dalam kalender Masehi.`,
+  },
+  {
+    question: `Apa itu weton dalam kalender Jawa?`,
+    answer: `Weton adalah kombinasi hari dalam seminggu (7 hari: Ahad hingga Sabtu) dengan hari pasaran Jawa (5 hari: Kliwon, Legi, Pahing, Pon, Wage). Kombinasi ini menghasilkan <strong>siklus 35 hari</strong>. Setiap weton memiliki nilai <strong>neptu</strong> yang digunakan dalam tradisi Jawa untuk menentukan hari baik pernikahan, memulai usaha, dan acara penting lainnya.`,
+  },
+  {
+    question: `Bagaimana cara membaca kalender Islam di website ini?`,
+    answer: `Setiap kotak tanggal di KalenderIslam.id menampilkan tiga informasi: angka <strong>Masehi</strong> (besar, di atas), angka <strong>Hijriah</strong> (kecil, di tengah), dan nama <strong>hari pasaran Jawa</strong> (terkecil, di bawah). Titik kuning menandai hari libur nasional. Kotak hijau menandai hari ini.`,
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqItems.map(item => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(),
+    },
+  })),
+};
 ---
 
 <BaseLayout title={metaTitle} description={metaDesc} canonicalPath="/">
 
   <JsonLD schema={speakableJsonLd} />
+  <JsonLD schema={faqJsonLd} />
 
   <!-- PRAYER TIMES BAR (real-time with geolocation) -->
   <div style="background: var(--green-900);" class="py-2 px-[clamp(1rem,4vw,3rem)]">
@@ -526,6 +586,33 @@ const metaDesc = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ` +
       </div>
     </section>
   )}
+
+  <!-- FAQ -->
+  <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] mb-10">
+    <h2
+      class="font-serif text-[1.4rem] font-semibold mb-5"
+      style="font-family:'Lora',serif; color:var(--ink);"
+    >
+      Pertanyaan Umum
+    </h2>
+
+    <FaqAccordion items={faqItems} client:visible />
+
+    <!-- SSR fallback untuk Googlebot -->
+    <noscript>
+      <div class="space-y-4 mt-4">
+        {faqItems.map(item => (
+          <div>
+            <h3 class="font-semibold text-[0.9rem]" style="color:var(--ink);">
+              {item.question}
+            </h3>
+            <p class="text-[0.88rem] mt-1" style="color:var(--ink-light);"
+               set:html={item.answer} />
+          </div>
+        ))}
+      </div>
+    </noscript>
+  </section>
 
   <!-- TENTANG KALENDERISLAM.ID -->
   <section
