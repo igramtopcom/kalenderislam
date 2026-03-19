@@ -173,26 +173,29 @@ const faqJsonLd = {
     style="background:var(--green-50); border-bottom:1px solid rgba(29,107,66,.12);"
     class="py-2 px-[clamp(1rem,4vw,3rem)]"
   >
-    <div
-      class="max-w-site mx-auto flex items-center justify-center gap-6 flex-wrap"
-      style="color:var(--ink-light); font-size:0.75rem;"
-    >
-      {[
-        { icon: '📅', text: '1.100+ Halaman Kalender' },
-        { icon: '📍', text: '100+ Kota Indonesia' },
-        { icon: '✅', text: 'Data Kemenag RI' },
-        { icon: '🔄', text: 'Diperbarui Otomatis' },
-      ].map((item, i) => (
-        <>
-          <span class="flex items-center gap-1.5 whitespace-nowrap">
-            <span>{item.icon}</span>
-            <span>{item.text}</span>
-          </span>
-          {i < 3 && (
-            <span style="color:rgba(29,107,66,.25);">·</span>
-          )}
-        </>
-      ))}
+    <div class="max-w-site mx-auto">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-1.5 sm:gap-y-0">
+        {[
+          { label: '1.100+ Halaman Kalender', path: 'M3 4h18v2H3zm0 7h18v2H3zm0 7h18v2H3z' },
+          { label: '100+ Kota Indonesia',     path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z' },
+          { label: 'Data Kemenag RI',         path: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z' },
+          { label: 'Diperbarui Otomatis',     path: 'M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z' },
+        ].map(item => (
+          <div class="flex items-center gap-2">
+            <div
+              class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
+              style="background:rgba(29,107,66,.1);"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="fill:#155232;">
+                <path d={item.path} />
+              </svg>
+            </div>
+            <span class="text-[0.72rem] font-medium leading-tight" style="color:var(--ink-muted);">
+              {item.label}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 
