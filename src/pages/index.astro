@@ -450,9 +450,9 @@ const faqJsonLd = {
         { href:'/konversi',          icon:'🔄', title:'Konverter Tanggal',   desc:'Konversi Masehi ↔ Hijri ↔ Jawa secara instan' },
         { href:'/weton',             icon:'⭐', title:'Kalkulator Weton',    desc:'Cari tahu weton dan neptu tanggal lahirmu' },
         { href:'/sholat/jakarta',    icon:'🕌', title:'Jadwal Sholat',       desc:'Waktu sholat 5 waktu untuk 100+ kota Indonesia' },
-        { href:'/ramadan/2026',      icon:'🌙', title:'Kalender Ramadan',    desc:'Imsakiyah lengkap Ramadan 2026 per kota' },
-        { href:'/hari-besar/idul-fitri/2026', icon:'🎉', title:'Hari Besar Islam', desc:'Tanggal resmi Kemenag + countdown hari besar' },
-        { href:'/libur-nasional/2026', icon:'📅', title:'Libur Nasional',   desc:'Daftar hari libur & cuti bersama 2026' },
+        { href:`/ramadan/${currentYear}`,      icon:'🌙', title:'Kalender Ramadan',    desc:`Imsakiyah lengkap Ramadan ${currentYear} per kota` },
+        { href:`/hari-besar/idul-fitri/${currentYear}`, icon:'🎉', title:'Hari Besar Islam', desc:'Tanggal resmi Kemenag + countdown hari besar' },
+        { href:`/libur-nasional/${currentYear}`, icon:'📅', title:'Libur Nasional',   desc:`Daftar hari libur & cuti bersama ${currentYear}` },
       ].map(tool => (
         <a
           href={tool.href}
@@ -575,7 +575,7 @@ const faqJsonLd = {
                  style="color:var(--green-200);">Hari</p>
             </div>
             <a
-              href="/ramadan/2026"
+              href={`/ramadan/${currentYear}`}
               class="px-5 py-2.5 rounded-[10px] text-[0.85rem] font-bold transition-colors duration-150 no-underline"
               style="background:var(--gold-500); color:var(--green-900);"
             >

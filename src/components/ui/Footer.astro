@@ -1,24 +1,25 @@
 ---
 const currentYear = new Date().getFullYear();
 
+const y = currentYear;
 const footerLinks = {
   'Kalender': [
-    { href: '/kalender/2026',       label: 'Kalender Islam 2026' },
-    { href: '/kalender/2027',       label: 'Kalender Islam 2027' },
-    { href: '/kalender-jawa/2026',  label: 'Kalender Jawa 2026' },
-    { href: '/libur-nasional/2026', label: 'Hari Libur 2026' },
+    { href: `/kalender/${y}`,       label: `Kalender Islam ${y}` },
+    { href: `/kalender/${y + 1}`,   label: `Kalender Islam ${y + 1}` },
+    { href: `/kalender-jawa/${y}`,  label: `Kalender Jawa ${y}` },
+    { href: `/libur-nasional/${y}`, label: `Hari Libur ${y}` },
   ],
   'Ramadan': [
-    { href: '/ramadan/2026',         label: 'Ramadan 2026' },
-    { href: '/ramadan/2026/jakarta', label: 'Imsakiyah Jakarta' },
-    { href: '/ramadan/2026/surabaya',label: 'Imsakiyah Surabaya' },
-    { href: '/ramadan/2026/bandung', label: 'Imsakiyah Bandung' },
+    { href: `/ramadan/${y}`,          label: `Ramadan ${y}` },
+    { href: `/ramadan/${y}/jakarta`,  label: 'Imsakiyah Jakarta' },
+    { href: `/ramadan/${y}/surabaya`, label: 'Imsakiyah Surabaya' },
+    { href: `/ramadan/${y}/bandung`,  label: 'Imsakiyah Bandung' },
   ],
   'Hari Besar': [
-    { href: '/hari-besar/idul-fitri/2026',  label: 'Idul Fitri 2026' },
-    { href: '/hari-besar/idul-adha/2026',   label: 'Idul Adha 2026' },
-    { href: '/hari-besar/ramadan/2026',     label: 'Ramadan 2026' },
-    { href: '/hari-besar/maulid-nabi/2026', label: 'Maulid Nabi 2026' },
+    { href: `/hari-besar/idul-fitri/${y}`,  label: `Idul Fitri ${y}` },
+    { href: `/hari-besar/idul-adha/${y}`,   label: `Idul Adha ${y}` },
+    { href: `/hari-besar/ramadan/${y}`,     label: `Ramadan ${y}` },
+    { href: `/hari-besar/maulid-nabi/${y}`, label: `Maulid Nabi ${y}` },
   ],
   'Tools': [
     { href: '/konversi',       label: 'Konversi Tanggal' },
