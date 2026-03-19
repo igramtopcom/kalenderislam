@@ -60,10 +60,13 @@ export async function getKemenagOfficialDates(
 
   if (error) {
     console.error(`[Supabase] getKemenagOfficialDates(${tahun}):`, error.message);
-    return [];
   }
 
-  return (data as OfficialDate[]).map(processOfficialDate);
+  const rows = (data as OfficialDate[] | null) ?? [];
+  if (rows.length > 0) return rows.map(processOfficialDate);
+
+  // Fallback: generate from algorithm when Supabase unavailable/empty
+  return generateFallbackOfficialDates(tahun);
 }
 
 /**
@@ -73,24 +76,61 @@ export async function getOfficialDateByEvent(
   event: OfficialDateEvent,
   tahun: number
 ): Promise<ProcessedOfficialDate | null> {
-  if (!supabase) return null;
+  if (supabase) {
+    const { data } = await supabase
+      .from('official_dates')
+      .select('*')
+      .eq('event', event)
+      .eq('tahun_masehi', tahun)
+      .single();
 
-  const { data, error } = await supabase
-    .from('official_dates')
-    .select('*')
-    .eq('event', event)
-    .eq('tahun_masehi', tahun)
-    .single();
+    if (data) return processOfficialDate(data as OfficialDate);
+  }
 
-  if (error || !data) return null;
+  // Fallback: generate from algorithm
+  const perkiraan = calcPerkiraanFromAlgo(event, tahun);
+  if (!perkiraan) return null;
 
-  return processOfficialDate(data as OfficialDate);
+  return {
+    event: event as OfficialDateEvent,
+    tahun_masehi: tahun,
+    bestDate: perkiraan,
+    tanggal_resmi: null,
+    tanggal_muhammadiyah: null,
+    tanggal_perkiraan: perkiraan,
+    isConfirmed: false,
+    source: 'perkiraan',
+    catatan: null,
+  };
 }
 
 /**
  * Memproses raw OfficialDate → format siap tampil
  * Prioritas: resmi > muhammadiyah > perkiraan
  */
+/**
+ * Generate fallback official dates from algorithm when Supabase unavailable
+ */
+function generateFallbackOfficialDates(tahun: number): ProcessedOfficialDate[] {
+  return Object.entries(EVENT_HIJRI)
+    .map(([event, ref]) => {
+      const perkiraan = calcPerkiraanFromAlgo(event, tahun);
+      if (!perkiraan) return null;
+      return {
+        event: event as OfficialDateEvent,
+        tahun_masehi: tahun,
+        bestDate: perkiraan,
+        tanggal_resmi: null,
+        tanggal_muhammadiyah: null,
+        tanggal_perkiraan: perkiraan,
+        isConfirmed: false,
+        source: 'perkiraan' as const,
+        catatan: null,
+      };
+    })
+    .filter((d): d is ProcessedOfficialDate => d !== null);
+}
+
 function processOfficialDate(row: OfficialDate): ProcessedOfficialDate {
   // Fallback: calculate tanggal_perkiraan from algorithm if Supabase NULL
   const tanggalPerkiraan =
