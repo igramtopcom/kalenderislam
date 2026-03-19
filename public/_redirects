@@ -1,0 +1,8 @@
+# Redirect common English month typos
+/kalender/2026/january    /kalender/2026/januari   301
+/kalender/2026/february   /kalender/2026/februari  301
+/kalender/2026/march      /kalender/2026/maret     301
+
+# Old URL patterns
+/jadwal-sholat/*  /sholat/:splat  301
+/imsakiyah/*      /ramadan/:splat 301
