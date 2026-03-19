@@ -1,1 +1,29 @@
-{}
+[
+  {
+    "id": "kemenag",
+    "nama": "Kemenag Indonesia",
+    "deskripsi": "Metode resmi Kementerian Agama RI",
+    "fajrAngle": 20,
+    "ishaAngle": 18,
+    "madhab": "shafi",
+    "isDefault": true
+  },
+  {
+    "id": "muslim-world-league",
+    "nama": "Muslim World League",
+    "deskripsi": "Digunakan di Eropa, Timur Jauh, Amerika",
+    "fajrAngle": 18,
+    "ishaAngle": 17,
+    "madhab": "shafi",
+    "isDefault": false
+  },
+  {
+    "id": "isna",
+    "nama": "ISNA (Amerika Utara)",
+    "deskripsi": "Islamic Society of North America",
+    "fajrAngle": 15,
+    "ishaAngle": 15,
+    "madhab": "shafi",
+    "isDefault": false
+  }
+]

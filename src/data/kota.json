@@ -1,1 +1,920 @@
-[]
+[
+  {
+    "slug": "banda-aceh",
+    "name": "Banda Aceh",
+    "province": "Aceh",
+    "lat": 5.5483,
+    "lng": 95.3238,
+    "timezone": "Asia/Jakarta",
+    "elevation": 10
+  },
+  {
+    "slug": "lhokseumawe",
+    "name": "Lhokseumawe",
+    "province": "Aceh",
+    "lat": 5.1801,
+    "lng": 97.1507,
+    "timezone": "Asia/Jakarta",
+    "elevation": 5
+  },
+  {
+    "slug": "langsa",
+    "name": "Langsa",
+    "province": "Aceh",
+    "lat": 4.4681,
+    "lng": 97.9683,
+    "timezone": "Asia/Jakarta",
+    "elevation": 10
+  },
+  {
+    "slug": "medan",
+    "name": "Medan",
+    "province": "Sumatera Utara",
+    "lat": 3.5952,
+    "lng": 98.6722,
+    "timezone": "Asia/Jakarta",
+    "elevation": 23
+  },
+  {
+    "slug": "binjai",
+    "name": "Binjai",
+    "province": "Sumatera Utara",
+    "lat": 3.6001,
+    "lng": 98.4854,
+    "timezone": "Asia/Jakarta",
+    "elevation": 28
+  },
+  {
+    "slug": "pematangsiantar",
+    "name": "Pematangsiantar",
+    "province": "Sumatera Utara",
+    "lat": 2.9545,
+    "lng": 99.0489,
+    "timezone": "Asia/Jakarta",
+    "elevation": 400
+  },
+  {
+    "slug": "tebing-tinggi",
+    "name": "Tebing Tinggi",
+    "province": "Sumatera Utara",
+    "lat": 3.3254,
+    "lng": 99.1625,
+    "timezone": "Asia/Jakarta",
+    "elevation": 26
+  },
+  {
+    "slug": "sibolga",
+    "name": "Sibolga",
+    "province": "Sumatera Utara",
+    "lat": 1.7427,
+    "lng": 98.7792,
+    "timezone": "Asia/Jakarta",
+    "elevation": 3
+  },
+  {
+    "slug": "padangsidimpuan",
+    "name": "Padangsidimpuan",
+    "province": "Sumatera Utara",
+    "lat": 1.3791,
+    "lng": 99.2738,
+    "timezone": "Asia/Jakarta",
+    "elevation": 522
+  },
+  {
+    "slug": "padang",
+    "name": "Padang",
+    "province": "Sumatera Barat",
+    "lat": -0.9471,
+    "lng": 100.4172,
+    "timezone": "Asia/Jakarta",
+    "elevation": 6
+  },
+  {
+    "slug": "bukittinggi",
+    "name": "Bukittinggi",
+    "province": "Sumatera Barat",
+    "lat": -0.3055,
+    "lng": 100.3691,
+    "timezone": "Asia/Jakarta",
+    "elevation": 930
+  },
+  {
+    "slug": "payakumbuh",
+    "name": "Payakumbuh",
+    "province": "Sumatera Barat",
+    "lat": -0.2220,
+    "lng": 100.6308,
+    "timezone": "Asia/Jakarta",
+    "elevation": 514
+  },
+  {
+    "slug": "solok",
+    "name": "Solok",
+    "province": "Sumatera Barat",
+    "lat": -0.7990,
+    "lng": 100.6544,
+    "timezone": "Asia/Jakarta",
+    "elevation": 390
+  },
+  {
+    "slug": "pekanbaru",
+    "name": "Pekanbaru",
+    "province": "Riau",
+    "lat": 0.5335,
+    "lng": 101.4474,
+    "timezone": "Asia/Jakarta",
+    "elevation": 30
+  },
+  {
+    "slug": "dumai",
+    "name": "Dumai",
+    "province": "Riau",
+    "lat": 1.6667,
+    "lng": 101.4500,
+    "timezone": "Asia/Jakarta",
+    "elevation": 2
+  },
+  {
+    "slug": "batam",
+    "name": "Batam",
+    "province": "Kepulauan Riau",
+    "lat": 1.0456,
+    "lng": 104.0305,
+    "timezone": "Asia/Jakarta",
+    "elevation": 10
+  },
+  {
+    "slug": "tanjungpinang",
+    "name": "Tanjungpinang",
+    "province": "Kepulauan Riau",
+    "lat": 0.9186,
+    "lng": 104.4467,
+    "timezone": "Asia/Jakarta",
+    "elevation": 5
+  },
+  {
+    "slug": "jambi",
+    "name": "Jambi",
+    "province": "Jambi",
+    "lat": -1.6101,
+    "lng": 103.6131,
+    "timezone": "Asia/Jakarta",
+    "elevation": 15
+  },
+  {
+    "slug": "muara-bungo",
+    "name": "Muara Bungo",
+    "province": "Jambi",
+    "lat": -1.4978,
+    "lng": 102.1175,
+    "timezone": "Asia/Jakarta",
+    "elevation": 50
+  },
+  {
+    "slug": "palembang",
+    "name": "Palembang",
+    "province": "Sumatera Selatan",
+    "lat": -2.9761,
+    "lng": 104.7754,
+    "timezone": "Asia/Jakarta",
+    "elevation": 8
+  },
+  {
+    "slug": "lubuklinggau",
+    "name": "Lubuklinggau",
+    "province": "Sumatera Selatan",
+    "lat": -3.2967,
+    "lng": 102.8614,
+    "timezone": "Asia/Jakarta",
+    "elevation": 92
+  },
+  {
+    "slug": "prabumulih",
+    "name": "Prabumulih",
+    "province": "Sumatera Selatan",
+    "lat": -3.4297,
+    "lng": 104.2300,
+    "timezone": "Asia/Jakarta",
+    "elevation": 20
+  },
+  {
+    "slug": "pangkalpinang",
+    "name": "Pangkalpinang",
+    "province": "Bangka Belitung",
+    "lat": -2.1290,
+    "lng": 106.1169,
+    "timezone": "Asia/Jakarta",
+    "elevation": 30
+  },
+  {
+    "slug": "bengkulu",
+    "name": "Bengkulu",
+    "province": "Bengkulu",
+    "lat": -3.8004,
+    "lng": 102.2655,
+    "timezone": "Asia/Jakarta",
+    "elevation": 10
+  },
+  {
+    "slug": "bandar-lampung",
+    "name": "Bandar Lampung",
+    "province": "Lampung",
+    "lat": -5.3971,
+    "lng": 105.2668,
+    "timezone": "Asia/Jakarta",
+    "elevation": 96
+  },
+  {
+    "slug": "metro",
+    "name": "Metro",
+    "province": "Lampung",
+    "lat": -5.1138,
+    "lng": 105.3067,
+    "timezone": "Asia/Jakarta",
+    "elevation": 50
+  },
+  {
+    "slug": "jakarta",
+    "name": "Jakarta",
+    "province": "DKI Jakarta",
+    "lat": -6.2088,
+    "lng": 106.8456,
+    "timezone": "Asia/Jakarta",
+    "elevation": 8
+  },
+  {
+    "slug": "bogor",
+    "name": "Bogor",
+    "province": "Jawa Barat",
+    "lat": -6.5971,
+    "lng": 106.8060,
+    "timezone": "Asia/Jakarta",
+    "elevation": 265
+  },
+  {
+    "slug": "depok",
+    "name": "Depok",
+    "province": "Jawa Barat",
+    "lat": -6.4025,
+    "lng": 106.7942,
+    "timezone": "Asia/Jakarta",
+    "elevation": 107
+  },
+  {
+    "slug": "tangerang",
+    "name": "Tangerang",
+    "province": "Banten",
+    "lat": -6.1781,
+    "lng": 106.6319,
+    "timezone": "Asia/Jakarta",
+    "elevation": 14
+  },
+  {
+    "slug": "tangerang-selatan",
+    "name": "Tangerang Selatan",
+    "province": "Banten",
+    "lat": -6.2886,
+    "lng": 106.7186,
+    "timezone": "Asia/Jakarta",
+    "elevation": 50
+  },
+  {
+    "slug": "bekasi",
+    "name": "Bekasi",
+    "province": "Jawa Barat",
+    "lat": -6.2383,
+    "lng": 106.9756,
+    "timezone": "Asia/Jakarta",
+    "elevation": 19
+  },
+  {
+    "slug": "bandung",
+    "name": "Bandung",
+    "province": "Jawa Barat",
+    "lat": -6.9175,
+    "lng": 107.6191,
+    "timezone": "Asia/Jakarta",
+    "elevation": 768
+  },
+  {
+    "slug": "cimahi",
+    "name": "Cimahi",
+    "province": "Jawa Barat",
+    "lat": -6.8841,
+    "lng": 107.5413,
+    "timezone": "Asia/Jakarta",
+    "elevation": 700
+  },
+  {
+    "slug": "cirebon",
+    "name": "Cirebon",
+    "province": "Jawa Barat",
+    "lat": -6.7320,
+    "lng": 108.5523,
+    "timezone": "Asia/Jakarta",
+    "elevation": 5
+  },
+  {
+    "slug": "tasikmalaya",
+    "name": "Tasikmalaya",
+    "province": "Jawa Barat",
+    "lat": -7.3274,
+    "lng": 108.2208,
+    "timezone": "Asia/Jakarta",
+    "elevation": 350
+  },
+  {
+    "slug": "sukabumi",
+    "name": "Sukabumi",
+    "province": "Jawa Barat",
+    "lat": -6.9277,
+    "lng": 106.9300,
+    "timezone": "Asia/Jakarta",
+    "elevation": 584
+  },
+  {
+    "slug": "karawang",
+    "name": "Karawang",
+    "province": "Jawa Barat",
+    "lat": -6.3227,
+    "lng": 107.3376,
+    "timezone": "Asia/Jakarta",
+    "elevation": 25
+  },
+  {
+    "slug": "serang",
+    "name": "Serang",
+    "province": "Banten",
+    "lat": -6.1185,
+    "lng": 106.1504,
+    "timezone": "Asia/Jakarta",
+    "elevation": 30
+  },
+  {
+    "slug": "cilegon",
+    "name": "Cilegon",
+    "province": "Banten",
+    "lat": -6.0023,
+    "lng": 106.0519,
+    "timezone": "Asia/Jakarta",
+    "elevation": 3
+  },
+  {
+    "slug": "semarang",
+    "name": "Semarang",
+    "province": "Jawa Tengah",
+    "lat": -6.9932,
+    "lng": 110.4203,
+    "timezone": "Asia/Jakarta",
+    "elevation": 4
+  },
+  {
+    "slug": "solo",
+    "name": "Solo",
+    "province": "Jawa Tengah",
+    "lat": -7.5755,
+    "lng": 110.8243,
+    "timezone": "Asia/Jakarta",
+    "elevation": 105
+  },
+  {
+    "slug": "yogyakarta",
+    "name": "Yogyakarta",
+    "province": "DI Yogyakarta",
+    "lat": -7.7956,
+    "lng": 110.3695,
+    "timezone": "Asia/Jakarta",
+    "elevation": 113
+  },
+  {
+    "slug": "magelang",
+    "name": "Magelang",
+    "province": "Jawa Tengah",
+    "lat": -7.4797,
+    "lng": 110.2177,
+    "timezone": "Asia/Jakarta",
+    "elevation": 380
+  },
+  {
+    "slug": "salatiga",
+    "name": "Salatiga",
+    "province": "Jawa Tengah",
+    "lat": -7.3305,
+    "lng": 110.4983,
+    "timezone": "Asia/Jakarta",
+    "elevation": 541
+  },
+  {
+    "slug": "kudus",
+    "name": "Kudus",
+    "province": "Jawa Tengah",
+    "lat": -6.8048,
+    "lng": 110.8405,
+    "timezone": "Asia/Jakarta",
+    "elevation": 55
+  },
+  {
+    "slug": "pekalongan",
+    "name": "Pekalongan",
+    "province": "Jawa Tengah",
+    "lat": -6.8886,
+    "lng": 109.6753,
+    "timezone": "Asia/Jakarta",
+    "elevation": 3
+  },
+  {
+    "slug": "tegal",
+    "name": "Tegal",
+    "province": "Jawa Tengah",
+    "lat": -6.8797,
+    "lng": 109.1426,
+    "timezone": "Asia/Jakarta",
+    "elevation": 3
+  },
+  {
+    "slug": "purwokerto",
+    "name": "Purwokerto",
+    "province": "Jawa Tengah",
+    "lat": -7.4244,
+    "lng": 109.2367,
+    "timezone": "Asia/Jakarta",
+    "elevation": 75
+  },
+  {
+    "slug": "cilacap",
+    "name": "Cilacap",
+    "province": "Jawa Tengah",
+    "lat": -7.7268,
+    "lng": 109.0154,
+    "timezone": "Asia/Jakarta",
+    "elevation": 6
+  },
+  {
+    "slug": "surabaya",
+    "name": "Surabaya",
+    "province": "Jawa Timur",
+    "lat": -7.2575,
+    "lng": 112.7521,
+    "timezone": "Asia/Jakarta",
+    "elevation": 4
+  },
+  {
+    "slug": "malang",
+    "name": "Malang",
+    "province": "Jawa Timur",
+    "lat": -7.9666,
+    "lng": 112.6326,
+    "timezone": "Asia/Jakarta",
+    "elevation": 444
+  },
+  {
+    "slug": "sidoarjo",
+    "name": "Sidoarjo",
+    "province": "Jawa Timur",
+    "lat": -7.4478,
+    "lng": 112.7183,
+    "timezone": "Asia/Jakarta",
+    "elevation": 4
+  },
+  {
+    "slug": "gresik",
+    "name": "Gresik",
+    "province": "Jawa Timur",
+    "lat": -7.1622,
+    "lng": 112.6509,
+    "timezone": "Asia/Jakarta",
+    "elevation": 3
+  },
+  {
+    "slug": "mojokerto",
+    "name": "Mojokerto",
+    "province": "Jawa Timur",
+    "lat": -7.4704,
+    "lng": 112.4340,
+    "timezone": "Asia/Jakarta",
+    "elevation": 22
+  },
+  {
+    "slug": "madiun",
+    "name": "Madiun",
+    "province": "Jawa Timur",
+    "lat": -7.6298,
+    "lng": 111.5239,
+    "timezone": "Asia/Jakarta",
+    "elevation": 65
+  },
+  {
+    "slug": "kediri",
+    "name": "Kediri",
+    "province": "Jawa Timur",
+    "lat": -7.8160,
+    "lng": 112.0181,
+    "timezone": "Asia/Jakarta",
+    "elevation": 67
+  },
+  {
+    "slug": "blitar",
+    "name": "Blitar",
+    "province": "Jawa Timur",
+    "lat": -8.0983,
+    "lng": 112.1681,
+    "timezone": "Asia/Jakarta",
+    "elevation": 167
+  },
+  {
+    "slug": "jember",
+    "name": "Jember",
+    "province": "Jawa Timur",
+    "lat": -8.1845,
+    "lng": 113.6681,
+    "timezone": "Asia/Jakarta",
+    "elevation": 83
+  },
+  {
+    "slug": "banyuwangi",
+    "name": "Banyuwangi",
+    "province": "Jawa Timur",
+    "lat": -8.2193,
+    "lng": 114.3691,
+    "timezone": "Asia/Jakarta",
+    "elevation": 30
+  },
+  {
+    "slug": "probolinggo",
+    "name": "Probolinggo",
+    "province": "Jawa Timur",
+    "lat": -7.7543,
+    "lng": 113.2159,
+    "timezone": "Asia/Jakarta",
+    "elevation": 4
+  },
+  {
+    "slug": "pasuruan",
+    "name": "Pasuruan",
+    "province": "Jawa Timur",
+    "lat": -7.6457,
+    "lng": 112.9078,
+    "timezone": "Asia/Jakarta",
+    "elevation": 5
+  },
+  {
+    "slug": "tuban",
+    "name": "Tuban",
+    "province": "Jawa Timur",
+    "lat": -6.8990,
+    "lng": 112.0498,
+    "timezone": "Asia/Jakarta",
+    "elevation": 5
+  },
+  {
+    "slug": "bojonegoro",
+    "name": "Bojonegoro",
+    "province": "Jawa Timur",
+    "lat": -7.1502,
+    "lng": 111.8815,
+    "timezone": "Asia/Jakarta",
+    "elevation": 15
+  },
+  {
+    "slug": "pamekasan",
+    "name": "Pamekasan",
+    "province": "Jawa Timur",
+    "lat": -7.1568,
+    "lng": 113.4746,
+    "timezone": "Asia/Jakarta",
+    "elevation": 15
+  },
+  {
+    "slug": "pontianak",
+    "name": "Pontianak",
+    "province": "Kalimantan Barat",
+    "lat": -0.0263,
+    "lng": 109.3425,
+    "timezone": "Asia/Jakarta",
+    "elevation": 1
+  },
+  {
+    "slug": "singkawang",
+    "name": "Singkawang",
+    "province": "Kalimantan Barat",
+    "lat": 0.9058,
+    "lng": 108.9875,
+    "timezone": "Asia/Jakarta",
+    "elevation": 5
+  },
+  {
+    "slug": "palangkaraya",
+    "name": "Palangkaraya",
+    "province": "Kalimantan Tengah",
+    "lat": -2.2136,
+    "lng": 113.9108,
+    "timezone": "Asia/Jakarta",
+    "elevation": 27
+  },
+  {
+    "slug": "sampit",
+    "name": "Sampit",
+    "province": "Kalimantan Tengah",
+    "lat": -2.5333,
+    "lng": 112.9500,
+    "timezone": "Asia/Jakarta",
+    "elevation": 5
+  },
+  {
+    "slug": "banjarmasin",
+    "name": "Banjarmasin",
+    "province": "Kalimantan Selatan",
+    "lat": -3.3186,
+    "lng": 114.5944,
+    "timezone": "Asia/Makassar",
+    "elevation": 1
+  },
+  {
+    "slug": "banjarbaru",
+    "name": "Banjarbaru",
+    "province": "Kalimantan Selatan",
+    "lat": -3.4425,
+    "lng": 114.8329,
+    "timezone": "Asia/Makassar",
+    "elevation": 30
+  },
+  {
+    "slug": "balikpapan",
+    "name": "Balikpapan",
+    "province": "Kalimantan Timur",
+    "lat": -1.2675,
+    "lng": 116.8289,
+    "timezone": "Asia/Makassar",
+    "elevation": 3
+  },
+  {
+    "slug": "samarinda",
+    "name": "Samarinda",
+    "province": "Kalimantan Timur",
+    "lat": -0.4948,
+    "lng": 117.1436,
+    "timezone": "Asia/Makassar",
+    "elevation": 3
+  },
+  {
+    "slug": "bontang",
+    "name": "Bontang",
+    "province": "Kalimantan Timur",
+    "lat": 0.1333,
+    "lng": 117.5000,
+    "timezone": "Asia/Makassar",
+    "elevation": 3
+  },
+  {
+    "slug": "tarakan",
+    "name": "Tarakan",
+    "province": "Kalimantan Utara",
+    "lat": 3.3007,
+    "lng": 117.5933,
+    "timezone": "Asia/Makassar",
+    "elevation": 5
+  },
+  {
+    "slug": "denpasar",
+    "name": "Denpasar",
+    "province": "Bali",
+    "lat": -8.6500,
+    "lng": 115.2167,
+    "timezone": "Asia/Makassar",
+    "elevation": 4
+  },
+  {
+    "slug": "singaraja",
+    "name": "Singaraja",
+    "province": "Bali",
+    "lat": -8.1120,
+    "lng": 115.0882,
+    "timezone": "Asia/Makassar",
+    "elevation": 10
+  },
+  {
+    "slug": "mataram",
+    "name": "Mataram",
+    "province": "Nusa Tenggara Barat",
+    "lat": -8.5833,
+    "lng": 116.1167,
+    "timezone": "Asia/Makassar",
+    "elevation": 16
+  },
+  {
+    "slug": "bima",
+    "name": "Bima",
+    "province": "Nusa Tenggara Barat",
+    "lat": -8.4667,
+    "lng": 118.7167,
+    "timezone": "Asia/Makassar",
+    "elevation": 5
+  },
+  {
+    "slug": "kupang",
+    "name": "Kupang",
+    "province": "Nusa Tenggara Timur",
+    "lat": -10.1772,
+    "lng": 123.6070,
+    "timezone": "Asia/Makassar",
+    "elevation": 15
+  },
+  {
+    "slug": "ende",
+    "name": "Ende",
+    "province": "Nusa Tenggara Timur",
+    "lat": -8.8493,
+    "lng": 121.6615,
+    "timezone": "Asia/Makassar",
+    "elevation": 10
+  },
+  {
+    "slug": "maumere",
+    "name": "Maumere",
+    "province": "Nusa Tenggara Timur",
+    "lat": -8.6213,
+    "lng": 122.2121,
+    "timezone": "Asia/Makassar",
+    "elevation": 5
+  },
+  {
+    "slug": "makassar",
+    "name": "Makassar",
+    "province": "Sulawesi Selatan",
+    "lat": -5.1477,
+    "lng": 119.4327,
+    "timezone": "Asia/Makassar",
+    "elevation": 2
+  },
+  {
+    "slug": "parepare",
+    "name": "Parepare",
+    "province": "Sulawesi Selatan",
+    "lat": -4.0135,
+    "lng": 119.6255,
+    "timezone": "Asia/Makassar",
+    "elevation": 5
+  },
+  {
+    "slug": "palopo",
+    "name": "Palopo",
+    "province": "Sulawesi Selatan",
+    "lat": -2.9926,
+    "lng": 120.1960,
+    "timezone": "Asia/Makassar",
+    "elevation": 8
+  },
+  {
+    "slug": "kendari",
+    "name": "Kendari",
+    "province": "Sulawesi Tenggara",
+    "lat": -3.9450,
+    "lng": 122.4989,
+    "timezone": "Asia/Makassar",
+    "elevation": 3
+  },
+  {
+    "slug": "bau-bau",
+    "name": "Bau-Bau",
+    "province": "Sulawesi Tenggara",
+    "lat": -5.4717,
+    "lng": 122.6169,
+    "timezone": "Asia/Makassar",
+    "elevation": 5
+  },
+  {
+    "slug": "palu",
+    "name": "Palu",
+    "province": "Sulawesi Tengah",
+    "lat": -0.8917,
+    "lng": 119.8707,
+    "timezone": "Asia/Makassar",
+    "elevation": 5
+  },
+  {
+    "slug": "luwuk",
+    "name": "Luwuk",
+    "province": "Sulawesi Tengah",
+    "lat": -0.9511,
+    "lng": 122.7917,
+    "timezone": "Asia/Makassar",
+    "elevation": 3
+  },
+  {
+    "slug": "manado",
+    "name": "Manado",
+    "province": "Sulawesi Utara",
+    "lat": 1.4748,
+    "lng": 124.8421,
+    "timezone": "Asia/Makassar",
+    "elevation": 10
+  },
+  {
+    "slug": "bitung",
+    "name": "Bitung",
+    "province": "Sulawesi Utara",
+    "lat": 1.4404,
+    "lng": 125.1917,
+    "timezone": "Asia/Makassar",
+    "elevation": 5
+  },
+  {
+    "slug": "gorontalo",
+    "name": "Gorontalo",
+    "province": "Gorontalo",
+    "lat": 0.5435,
+    "lng": 123.0568,
+    "timezone": "Asia/Makassar",
+    "elevation": 5
+  },
+  {
+    "slug": "mamuju",
+    "name": "Mamuju",
+    "province": "Sulawesi Barat",
+    "lat": -2.6748,
+    "lng": 118.8885,
+    "timezone": "Asia/Makassar",
+    "elevation": 5
+  },
+  {
+    "slug": "ambon",
+    "name": "Ambon",
+    "province": "Maluku",
+    "lat": -3.6954,
+    "lng": 128.1814,
+    "timezone": "Asia/Jayapura",
+    "elevation": 10
+  },
+  {
+    "slug": "tual",
+    "name": "Tual",
+    "province": "Maluku",
+    "lat": -5.6333,
+    "lng": 132.7500,
+    "timezone": "Asia/Jayapura",
+    "elevation": 5
+  },
+  {
+    "slug": "ternate",
+    "name": "Ternate",
+    "province": "Maluku Utara",
+    "lat": 0.7833,
+    "lng": 127.3667,
+    "timezone": "Asia/Jayapura",
+    "elevation": 10
+  },
+  {
+    "slug": "tidore",
+    "name": "Tidore",
+    "province": "Maluku Utara",
+    "lat": 0.6833,
+    "lng": 127.4000,
+    "timezone": "Asia/Jayapura",
+    "elevation": 10
+  },
+  {
+    "slug": "sorong",
+    "name": "Sorong",
+    "province": "Papua Barat",
+    "lat": -0.8761,
+    "lng": 131.2550,
+    "timezone": "Asia/Jayapura",
+    "elevation": 3
+  },
+  {
+    "slug": "manokwari",
+    "name": "Manokwari",
+    "province": "Papua Barat",
+    "lat": -0.8615,
+    "lng": 134.0830,
+    "timezone": "Asia/Jayapura",
+    "elevation": 3
+  },
+  {
+    "slug": "jayapura",
+    "name": "Jayapura",
+    "province": "Papua",
+    "lat": -2.5333,
+    "lng": 140.7167,
+    "timezone": "Asia/Jayapura",
+    "elevation": 13
+  },
+  {
+    "slug": "merauke",
+    "name": "Merauke",
+    "province": "Papua",
+    "lat": -8.4932,
+    "lng": 140.4018,
+    "timezone": "Asia/Jayapura",
+    "elevation": 3
+  },
+  {
+    "slug": "timika",
+    "name": "Timika",
+    "province": "Papua",
+    "lat": -4.5478,
+    "lng": 136.8872,
+    "timezone": "Asia/Jayapura",
+    "elevation": 30
+  }
+]

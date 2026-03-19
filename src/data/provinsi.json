@@ -1,1 +1,172 @@
-[]
+[
+  {
+    "slug": "aceh",
+    "nama": "Aceh",
+    "kota_utama": ["banda-aceh", "lhokseumawe", "langsa"]
+  },
+  {
+    "slug": "sumatera-utara",
+    "nama": "Sumatera Utara",
+    "kota_utama": ["medan", "binjai", "pematangsiantar", "tebing-tinggi", "sibolga", "padangsidimpuan"]
+  },
+  {
+    "slug": "sumatera-barat",
+    "nama": "Sumatera Barat",
+    "kota_utama": ["padang", "bukittinggi", "payakumbuh", "solok"]
+  },
+  {
+    "slug": "riau",
+    "nama": "Riau",
+    "kota_utama": ["pekanbaru", "dumai"]
+  },
+  {
+    "slug": "kepulauan-riau",
+    "nama": "Kepulauan Riau",
+    "kota_utama": ["batam", "tanjungpinang"]
+  },
+  {
+    "slug": "jambi",
+    "nama": "Jambi",
+    "kota_utama": ["jambi", "muara-bungo"]
+  },
+  {
+    "slug": "sumatera-selatan",
+    "nama": "Sumatera Selatan",
+    "kota_utama": ["palembang", "lubuklinggau", "prabumulih"]
+  },
+  {
+    "slug": "bengkulu",
+    "nama": "Bengkulu",
+    "kota_utama": ["bengkulu"]
+  },
+  {
+    "slug": "lampung",
+    "nama": "Lampung",
+    "kota_utama": ["bandar-lampung", "metro"]
+  },
+  {
+    "slug": "bangka-belitung",
+    "nama": "Bangka Belitung",
+    "kota_utama": ["pangkalpinang"]
+  },
+  {
+    "slug": "dki-jakarta",
+    "nama": "DKI Jakarta",
+    "kota_utama": ["jakarta"]
+  },
+  {
+    "slug": "jawa-barat",
+    "nama": "Jawa Barat",
+    "kota_utama": ["bandung", "bogor", "depok", "bekasi", "cimahi", "cirebon", "tasikmalaya", "sukabumi", "karawang"]
+  },
+  {
+    "slug": "banten",
+    "nama": "Banten",
+    "kota_utama": ["serang", "tangerang", "tangerang-selatan", "cilegon"]
+  },
+  {
+    "slug": "jawa-tengah",
+    "nama": "Jawa Tengah",
+    "kota_utama": ["semarang", "solo", "magelang", "salatiga", "kudus", "pekalongan", "tegal", "purwokerto", "cilacap"]
+  },
+  {
+    "slug": "diy-yogyakarta",
+    "nama": "DI Yogyakarta",
+    "kota_utama": ["yogyakarta"]
+  },
+  {
+    "slug": "jawa-timur",
+    "nama": "Jawa Timur",
+    "kota_utama": ["surabaya", "malang", "sidoarjo", "gresik", "mojokerto", "madiun", "kediri", "blitar", "jember", "banyuwangi", "probolinggo", "pasuruan", "tuban", "bojonegoro", "pamekasan"]
+  },
+  {
+    "slug": "bali",
+    "nama": "Bali",
+    "kota_utama": ["denpasar", "singaraja"]
+  },
+  {
+    "slug": "nusa-tenggara-barat",
+    "nama": "Nusa Tenggara Barat",
+    "kota_utama": ["mataram", "bima"]
+  },
+  {
+    "slug": "nusa-tenggara-timur",
+    "nama": "Nusa Tenggara Timur",
+    "kota_utama": ["kupang", "ende", "maumere"]
+  },
+  {
+    "slug": "kalimantan-barat",
+    "nama": "Kalimantan Barat",
+    "kota_utama": ["pontianak", "singkawang"]
+  },
+  {
+    "slug": "kalimantan-tengah",
+    "nama": "Kalimantan Tengah",
+    "kota_utama": ["palangkaraya", "sampit"]
+  },
+  {
+    "slug": "kalimantan-selatan",
+    "nama": "Kalimantan Selatan",
+    "kota_utama": ["banjarmasin", "banjarbaru"]
+  },
+  {
+    "slug": "kalimantan-timur",
+    "nama": "Kalimantan Timur",
+    "kota_utama": ["balikpapan", "samarinda", "bontang"]
+  },
+  {
+    "slug": "kalimantan-utara",
+    "nama": "Kalimantan Utara",
+    "kota_utama": ["tarakan"]
+  },
+  {
+    "slug": "sulawesi-selatan",
+    "nama": "Sulawesi Selatan",
+    "kota_utama": ["makassar", "parepare", "palopo"]
+  },
+  {
+    "slug": "sulawesi-tenggara",
+    "nama": "Sulawesi Tenggara",
+    "kota_utama": ["kendari", "bau-bau"]
+  },
+  {
+    "slug": "sulawesi-tengah",
+    "nama": "Sulawesi Tengah",
+    "kota_utama": ["palu", "luwuk"]
+  },
+  {
+    "slug": "sulawesi-utara",
+    "nama": "Sulawesi Utara",
+    "kota_utama": ["manado", "bitung"]
+  },
+  {
+    "slug": "sulawesi-barat",
+    "nama": "Sulawesi Barat",
+    "kota_utama": ["mamuju"]
+  },
+  {
+    "slug": "gorontalo",
+    "nama": "Gorontalo",
+    "kota_utama": ["gorontalo"]
+  },
+  {
+    "slug": "maluku",
+    "nama": "Maluku",
+    "kota_utama": ["ambon", "tual"]
+  },
+  {
+    "slug": "maluku-utara",
+    "nama": "Maluku Utara",
+    "kota_utama": ["ternate", "tidore"]
+  },
+  {
+    "slug": "papua-barat",
+    "nama": "Papua Barat",
+    "kota_utama": ["sorong", "manokwari"]
+  },
+  {
+    "slug": "papua",
+    "nama": "Papua",
+    "kota_utama": ["jayapura", "merauke", "timika"]
+  }
+]

@@ -1,1 +1,101 @@
-[]
+[
+  {
+    "slug": "ramadan",
+    "nama": "Bulan Ramadan",
+    "nama_arab": "رمضان",
+    "hijriMonth": 9,
+    "hijriDay": 1,
+    "libur_nasional": false,
+    "deskripsi": "Bulan puasa wajib bagi seluruh umat Islam selama 29 atau 30 hari.",
+    "amalan": ["Puasa wajib", "Tarawih", "Tadarus Al-Quran", "Lailatul Qadar", "Zakat Fitrah"],
+    "event_id": "ramadan_start"
+  },
+  {
+    "slug": "idul-fitri",
+    "nama": "Hari Raya Idul Fitri",
+    "nama_arab": "عيد الفطر",
+    "hijriMonth": 10,
+    "hijriDay": 1,
+    "libur_nasional": true,
+    "deskripsi": "Hari raya yang menandai berakhirnya bulan Ramadan dan kemenangan setelah sebulan berpuasa.",
+    "amalan": ["Takbiran", "Shalat Id", "Silaturahmi", "Zakat Fitrah"],
+    "event_id": "idul_fitri"
+  },
+  {
+    "slug": "idul-adha",
+    "nama": "Hari Raya Idul Adha",
+    "nama_arab": "عيد الأضحى",
+    "hijriMonth": 12,
+    "hijriDay": 10,
+    "libur_nasional": true,
+    "deskripsi": "Hari raya kurban yang memperingati ketaatan Nabi Ibrahim AS.",
+    "amalan": ["Shalat Id", "Penyembelihan Hewan Kurban", "Ibadah Haji"],
+    "event_id": "idul_adha"
+  },
+  {
+    "slug": "tahun-baru-islam",
+    "nama": "Tahun Baru Islam",
+    "nama_arab": "رأس السنة الهجرية",
+    "hijriMonth": 1,
+    "hijriDay": 1,
+    "libur_nasional": true,
+    "deskripsi": "Hari pertama bulan Muharram, menandai dimulainya tahun baru dalam kalender Hijriah.",
+    "amalan": ["Puasa sunnah Muharram", "Muhasabah diri", "Doa awal tahun"],
+    "event_id": "muharram"
+  },
+  {
+    "slug": "maulid-nabi",
+    "nama": "Maulid Nabi Muhammad SAW",
+    "nama_arab": "مولد النبي",
+    "hijriMonth": 3,
+    "hijriDay": 12,
+    "libur_nasional": true,
+    "deskripsi": "Peringatan hari kelahiran Nabi Muhammad SAW pada 12 Rabiul Awal.",
+    "amalan": ["Shalawat", "Pengajian", "Pembacaan sirah nabawiyah"],
+    "event_id": "maulid_nabi"
+  },
+  {
+    "slug": "isra-miraj",
+    "nama": "Isra Mi'raj",
+    "nama_arab": "الإسراء والمعراج",
+    "hijriMonth": 7,
+    "hijriDay": 27,
+    "libur_nasional": true,
+    "deskripsi": "Peringatan perjalanan malam Nabi Muhammad SAW dari Masjidil Haram ke Masjidil Aqsa dan naik ke Sidratul Muntaha.",
+    "amalan": ["Shalat sunnah", "Membaca kisah Isra Miraj", "Pengajian"],
+    "event_id": "isra_miraj"
+  },
+  {
+    "slug": "nuzulul-quran",
+    "nama": "Nuzulul Quran",
+    "nama_arab": "نزول القرآن",
+    "hijriMonth": 9,
+    "hijriDay": 17,
+    "libur_nasional": false,
+    "deskripsi": "Peringatan turunnya Al-Quran pertama kali kepada Nabi Muhammad SAW pada malam 17 Ramadan.",
+    "amalan": ["Tadarus Al-Quran", "Khataman", "I'tikaf"],
+    "event_id": "nuzulul_quran"
+  },
+  {
+    "slug": "lailatul-qadar",
+    "nama": "Lailatul Qadar",
+    "nama_arab": "ليلة القدر",
+    "hijriMonth": 9,
+    "hijriDay": 27,
+    "libur_nasional": false,
+    "deskripsi": "Malam yang lebih baik dari seribu bulan, terjadi di malam-malam ganjil 10 hari terakhir Ramadan.",
+    "amalan": ["Qiyamul lail", "I'tikaf", "Dzikir", "Doa"],
+    "event_id": "lailatul_qadar"
+  },
+  {
+    "slug": "hari-arafah",
+    "nama": "Hari Arafah",
+    "nama_arab": "يوم عرفة",
+    "hijriMonth": 12,
+    "hijriDay": 9,
+    "libur_nasional": false,
+    "deskripsi": "Hari wukuf di Padang Arafah bagi jamaah haji, dianjurkan puasa sunnah Arafah bagi yang tidak berhaji.",
+    "amalan": ["Puasa sunnah Arafah", "Perbanyak doa dan dzikir"],
+    "event_id": "hari_arafah"
+  }
+]

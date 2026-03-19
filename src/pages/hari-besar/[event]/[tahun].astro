@@ -1,6 +1,6 @@
 ---
 export function getStaticPaths() {
-  const events = ['idul-fitri','idul-adha','isra-miraj','maulid-nabi','tahun-baru-islam','nuzulul-quran','lailatul-qadar','ramadan'];
+  const events = ['idul-fitri','idul-adha','isra-miraj','maulid-nabi','tahun-baru-islam','nuzulul-quran','lailatul-qadar','ramadan','hari-arafah'];
   const paths: { params: { event: string; tahun: string } }[] = [];
   for (const e of events) {
     for (let y = 2024; y <= 2031; y++) {
