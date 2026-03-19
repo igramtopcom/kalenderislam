@@ -1,11 +1,227 @@
 ---
-export function getStaticPaths() {
-  const paths: { params: { tahun: string; kota: string } }[] = [];
-  for (let y = 2025; y <= 2028; y++) {
-    paths.push({ params: { tahun: String(y), kota: 'jakarta' } });
-  }
-  return paths;
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JsonLD from '@/components/seo/JsonLD.astro';
+import { getAllKota, getKotaBySlug, getOfficialDateByEvent } from '@/lib/data';
+import { getSholatTimesFormatted, getTimezoneLabel } from '@/lib/calendar';
+
+export async function getStaticPaths() {
+  const allKota    = getAllKota();
+  const tahunRange = [2025, 2026, 2027, 2028];
+
+  return tahunRange.flatMap(tahun =>
+    allKota.map(kota => ({
+      params: { tahun: String(tahun), kota: kota.slug },
+      props:  { tahun, kotaSlug: kota.slug },
+    }))
+  );
 }
-const { tahun, kota } = Astro.params;
+
+const { tahun, kotaSlug } = Astro.props as { tahun: number; kotaSlug: string };
+
+const kota = getKotaBySlug(kotaSlug);
+if (!kota) return Astro.redirect(`/ramadan/${tahun}`);
+
+const ramadanData  = await getOfficialDateByEvent('ramadan_start', tahun);
+const ramadanStart = ramadanData?.bestDate ?? null;
+
+if (!ramadanStart) return Astro.redirect(`/ramadan/${tahun}`);
+
+const HARI_INDO  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN_INDO = [
+  'Januari','Februari','Maret','April','Mei','Juni',
+  'Juli','Agustus','September','Oktober','November','Desember'
+];
+
+interface ImsakiyahRow {
+  hari: number; tanggal: number; bulan: string; hariNama: string;
+  imsak: string; subuh: string; dzuhur: string; ashar: string; maghrib: string; isya: string;
+  isFriday: boolean;
+}
+
+const imsakiyah: ImsakiyahRow[] = [];
+for (let i = 0; i < 30; i++) {
+  const date = new Date(ramadanStart + 'T12:00:00');
+  date.setDate(date.getDate() + i);
+
+  const times = getSholatTimesFormatted(kota.lat, kota.lng, date, kota.timezone);
+  imsakiyah.push({
+    hari: i + 1,
+    tanggal: date.getDate(),
+    bulan: BULAN_INDO[date.getMonth()],
+    hariNama: HARI_INDO[date.getDay()],
+    imsak: times.imsak, subuh: times.fajr, dzuhur: times.dhuhr,
+    ashar: times.asr, maghrib: times.maghrib, isya: times.isha,
+    isFriday: date.getDay() === 5,
+  });
+}
+
+const tzLabel     = getTimezoneLabel(kota.timezone);
+const isConfirmed = ramadanData?.isConfirmed ?? false;
+
+function fmtDate(dateStr: string): string {
+  const d = new Date(dateStr + 'T12:00:00');
+  return `${d.getDate()} ${BULAN_INDO[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+const title = `Imsakiyah Ramadan ${tahun} ${kota.name} — Jadwal Imsak & Buka Puasa | KalenderIslam.id`;
+const desc  = `Jadwal imsakiyah Ramadan ${tahun} kota ${kota.name}. Waktu imsak, subuh, dzuhur, ashar, maghrib, isya selama 30 hari. Metode Kemenag RI.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: `Ramadan ${tahun} — Imsakiyah ${kota.name}`,
+  startDate: ramadanStart,
+  location: {
+    '@type': 'Place',
+    name: kota.name,
+    address: { '@type': 'PostalAddress', addressLocality: kota.name, addressRegion: kota.province, addressCountry: 'ID' },
+  },
+};
 ---
-<html><body><p>Ramadan {tahun} {kota} — placeholder</p></body></html>
+
+<BaseLayout title={title} description={desc} canonicalPath={`/ramadan/${tahun}/${kotaSlug}`}>
+  <JsonLD schema={jsonLd} />
+
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-6 text-[0.78rem] flex-wrap">
+      <a href="/" class="no-underline" style="color:var(--ink-light) !important;">Beranda</a>
+      <span style="color:var(--ink-light);">›</span>
+      <a href={`/ramadan/${tahun}`} class="no-underline" style="color:var(--ink-light) !important;">Ramadan {tahun}</a>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="font-medium" style="color:var(--ink);">{kota.name}</span>
+    </div>
+
+    <!-- Header -->
+    <div class="mb-6">
+      {!isConfirmed && (
+        <span class="inline-block text-[0.7rem] font-semibold px-2 py-0.5 rounded-full mb-2"
+              style="background:#FEF3C7; color:#92400E;">
+          Tanggal perkiraan — menunggu isbat
+        </span>
+      )}
+      <h1 class="text-[1.8rem] font-bold" style="font-family:'Lora',serif; color:var(--ink);">
+        Imsakiyah Ramadan {tahun}
+      </h1>
+      <p class="text-[1rem] mt-1" style="color:var(--ink-light);">
+        {kota.name}, {kota.province} · Zona {tzLabel}
+      </p>
+      <p class="text-[0.85rem] mt-0.5" style="color:var(--ink-light);">
+        {fmtDate(ramadanStart)} — 30 hari puasa
+      </p>
+    </div>
+
+    <!-- Info metode -->
+    <div class="rounded-xl px-4 py-3 mb-6 flex items-start gap-3 text-[0.78rem]"
+         style="background:var(--green-50); border:1px solid rgba(29,107,66,.12);">
+      <span class="text-base flex-shrink-0 mt-0.5">ℹ️</span>
+      <p style="color:var(--ink-light);">
+        Metode <strong style="color:var(--ink);">Kemenag RI</strong>
+        (Fajr 20°, Isha 18°, Mazhab Syafi'i) · Koordinat {kota.lat}, {kota.lng} · Elevasi {kota.elevation}m · Imsak = Subuh - 10 menit
+      </p>
+    </div>
+
+    <!-- Desktop Table -->
+    <div class="rounded-2xl overflow-hidden mb-6 hidden md:block"
+         style="border:1px solid rgba(29,107,66,.12);">
+      <div class="grid grid-cols-[50px_120px_80px_80px_80px_80px_80px_80px] gap-0"
+           style="background:var(--green-800);">
+        {['Hari','Tanggal','Imsak','Subuh','Dzuhur','Ashar','Maghrib','Isya'].map((h, i) => (
+          <div class={`px-3 py-3 text-[0.72rem] font-semibold uppercase tracking-wider text-center ${i > 0 ? 'border-l' : ''}`}
+               style="color:var(--green-200); border-color:rgba(255,255,255,.1);">
+            {h}
+          </div>
+        ))}
+      </div>
+
+      {imsakiyah.map(row => (
+        <div class={`grid grid-cols-[50px_120px_80px_80px_80px_80px_80px_80px]
+                    ${row.isFriday ? 'bg-green-50' : 'bg-white'}`}
+             style="border-top:1px solid rgba(29,107,66,.06);">
+          <div class="px-3 py-3 text-center">
+            <span class="text-[0.85rem] font-bold"
+                  style={row.isFriday ? 'color:var(--green-700);' : 'color:var(--ink);'}>{row.hari}</span>
+          </div>
+          <div class="px-3 py-3" style="border-left:1px solid rgba(29,107,66,.06);">
+            <p class="text-[0.82rem] font-medium" style="color:var(--ink);">{row.hariNama}</p>
+            <p class="text-[0.72rem]" style="color:var(--ink-light);">{row.tanggal} {row.bulan}</p>
+          </div>
+          {[row.imsak, row.subuh, row.dzuhur, row.ashar, row.maghrib, row.isya].map((waktu, wi) => (
+            <div class="px-3 py-3 text-center" style="border-left:1px solid rgba(29,107,66,.06);">
+              <span class="text-[0.85rem] font-semibold tabular-nums"
+                    style={wi === 4 ? 'color:var(--green-700); font-weight:700;'
+                      : wi === 0 ? 'color:var(--ink-light);' : 'color:var(--ink);'}>
+                {waktu}
+              </span>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+
+    <!-- Mobile Cards -->
+    <div class="md:hidden space-y-2 mb-6">
+      {imsakiyah.map(row => (
+        <div class="rounded-xl overflow-hidden"
+             style={`border:1px solid ${row.isFriday ? 'rgba(29,107,66,.2)' : 'rgba(29,107,66,.1)'};`}>
+          <div class="flex items-center justify-between px-4 py-2.5"
+               style={row.isFriday ? 'background:var(--green-700);' : 'background:var(--green-50);'}>
+            <div class="flex items-center gap-2">
+              <span class="text-[1rem] font-bold"
+                    style={row.isFriday ? 'color:white;' : 'color:var(--green-700);'}>{row.hari}</span>
+              <div>
+                <p class="text-[0.8rem] font-semibold"
+                   style={row.isFriday ? 'color:white;' : 'color:var(--ink);'}>{row.hariNama}</p>
+                <p class="text-[0.7rem]"
+                   style={row.isFriday ? 'color:var(--green-200);' : 'color:var(--ink-light);'}>{row.tanggal} {row.bulan}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-[0.68rem]"
+                 style={row.isFriday ? 'color:var(--green-200);' : 'color:var(--ink-light);'}>Imsak {row.imsak}</p>
+              <p class="text-[0.82rem] font-bold"
+                 style={row.isFriday ? 'color:var(--gold-400);' : 'color:var(--green-700);'}>Buka {row.maghrib}</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-4 bg-white" style="border-top:1px solid rgba(29,107,66,.06);">
+            {[
+              { label: 'Subuh',  value: row.subuh },
+              { label: 'Dzuhur', value: row.dzuhur },
+              { label: 'Ashar',  value: row.ashar },
+              { label: 'Isya',   value: row.isya },
+            ].map(item => (
+              <div class="py-2 text-center" style="border-right:1px solid rgba(29,107,66,.06);">
+                <p class="text-[0.65rem]" style="color:var(--ink-light);">{item.label}</p>
+                <p class="text-[0.8rem] font-semibold tabular-nums" style="color:var(--ink);">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Kota lain -->
+    <div class="rounded-2xl p-5" style="background:white; border:1px solid rgba(29,107,66,.12);">
+      <h2 class="text-[0.9rem] font-semibold mb-3" style="color:var(--ink);">Kota Lain</h2>
+      <div class="flex flex-wrap gap-2">
+        {getAllKota()
+          .filter(k => k.province === kota.province && k.slug !== kota.slug)
+          .slice(0, 8)
+          .map(k => (
+            <a href={`/ramadan/${tahun}/${k.slug}`}
+               class="px-3 py-1.5 rounded-lg text-[0.78rem] font-medium no-underline transition-colors duration-150"
+               style="background:var(--green-50); color:var(--green-700) !important; border:1px solid rgba(29,107,66,.15);">
+              {k.name}
+            </a>
+          ))}
+        <a href={`/ramadan/${tahun}`}
+           class="px-3 py-1.5 rounded-lg text-[0.78rem] font-medium no-underline transition-colors duration-150"
+           style="background:var(--green-50); color:var(--ink-muted) !important; border:1px solid rgba(29,107,66,.1);">
+          Semua kota →
+        </a>
+      </div>
+    </div>
+
+  </div>
+</BaseLayout>
