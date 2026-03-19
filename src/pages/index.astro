@@ -79,7 +79,7 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
       <!-- TODAY CARD (h-full to match Calendar height) -->
       <div
         class="rounded-3xl relative overflow-hidden animate-fade-up h-full flex flex-col"
-        style="background: var(--green-800); padding: 2rem 2.5rem 1.5rem;"
+        style="background: var(--green-800); padding: 1.5rem 2rem 1.25rem;"
       >
         <!-- Pattern overlay -->
         <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
@@ -96,13 +96,13 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
 
         <div class="relative z-10 flex flex-col justify-between h-full">
           <!-- Bismillah -->
-          <div class="text-center mb-3 text-[1.6rem]"
+          <div class="text-center mb-2 text-[1.4rem]"
                style="color: rgba(226,188,69,.7); font-family: 'Amiri', serif;">
             بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
           </div>
 
           <!-- Label -->
-          <p class="text-[0.72rem] font-semibold uppercase tracking-widest mb-2"
+          <p class="text-[0.68rem] font-semibold uppercase tracking-widest mb-1.5"
              style="color: var(--green-200); opacity: .7;">
             Hari Ini
           </p>
@@ -111,11 +111,11 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
           <TodayWidget client:load />
 
           <!-- Divider -->
-          <div style="height:1px; background:rgba(255,255,255,.1); margin: 0.5rem 0;"></div>
+          <div style="height:1px; background:rgba(255,255,255,.08); margin: 0.4rem 0;"></div>
 
-          <!-- Upcoming events — max 2 to balance with Calendar -->
+          <!-- Upcoming event — single card to keep height balanced -->
           <div class="flex flex-col gap-2">
-            {upcomingEvents.slice(0, 2).map(event => {
+            {upcomingEvents.slice(0, 1).map(event => {
               const hb = hariBesarList.find(h => h.event_id === event.event);
               if (!event.bestDate || !hb) return null;
 
