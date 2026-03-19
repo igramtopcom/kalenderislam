@@ -1,16 +1,322 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { gregorianToHijri, gregorianToJawa } from '@/lib/calendar';
+import { getKemenagOfficialDates, getNationalHolidaysSafe, getAllHariBesar } from '@/lib/data';
+import CalendarGrid from '@/components/calendar/CalendarGrid.astro';
+
+// ── Tanggal hari ini (server-side) ───────────────────────────────────────────
+const today       = new Date();
+const todayHijri  = gregorianToHijri(today);
+const todayJawa   = gregorianToJawa(today);
+
+const HARI_INDO = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN_INDO = [
+  'Januari','Februari','Maret','April','Mei','Juni',
+  'Juli','Agustus','September','Oktober','November','Desember'
+];
+
+const hariIni   = HARI_INDO[today.getDay()];
+const tanggal   = today.getDate();
+const bulan     = BULAN_INDO[today.getMonth()];
+const tahun     = today.getFullYear();
+
+// ── Data kalender ────────────────────────────────────────────────────────────
+const currentYear  = today.getFullYear();
+const currentMonth = today.getMonth();
+
+const officialDates = await getKemenagOfficialDates(currentYear);
+const holidays      = await getNationalHolidaysSafe(currentYear);
+
+// ── Hari besar mendatang ─────────────────────────────────────────────────────
+const hariBesarList = getAllHariBesar();
+const upcomingEvents = officialDates
+  .filter(d => d.bestDate && new Date(d.bestDate) > today)
+  .sort((a, b) => new Date(a.bestDate!).getTime() - new Date(b.bestDate!).getTime())
+  .slice(0, 4);
+
+// ── Countdown Ramadan ────────────────────────────────────────────────────────
+const ramadanData  = officialDates.find(d => d.event === 'ramadan_start');
+const ramadanDate  = ramadanData?.bestDate ? new Date(ramadanData.bestDate) : null;
+const daysToRamadan = ramadanDate
+  ? Math.ceil((ramadanDate.getTime() - today.getTime()) / 86_400_000)
+  : null;
+
+const metaTitle = `Kalender Islam ${tahun} — Tanggal Hijriah & Jawa Hari Ini | KalenderIslam.id`;
+const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHijri.formatted} = ${todayJawa.weton}. Kalender Islam lengkap Hijriah, Masehi, Jawa. Akurat sesuai Kemenag RI.`;
 ---
-<BaseLayout>
-  <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-16 text-center animate-fade-up">
-    <h1 class="font-serif text-3xl text-green-700 mb-4">
-      KalenderIslam.id
-    </h1>
-    <p class="text-ink-muted text-lg mb-8">
-      Kalender Hijriah, Masehi &amp; Jawa untuk Muslim Indonesia
-    </p>
-    <p class="text-ink-light text-sm">
-      Sedang dalam pengembangan — Sprint S-04
-    </p>
+
+<BaseLayout title={metaTitle} description={metaDesc} canonicalPath="/">
+
+  <!-- PRAYER TIMES BAR (placeholder — Sprint S-08) -->
+  <div style="background: var(--green-900);" class="py-2 px-[clamp(1rem,4vw,3rem)]">
+    <div class="max-w-site mx-auto flex items-center justify-between gap-4 overflow-x-auto">
+      <span class="text-[0.72rem] font-semibold uppercase tracking-widest whitespace-nowrap flex-shrink-0"
+            style="color: var(--green-200);">
+        Jakarta
+      </span>
+      <div class="flex items-center gap-2 flex-wrap">
+        {['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya'].map(waktu => (
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.72rem]"
+               style="background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09);">
+            <span style="color: rgba(255,255,255,.5);">{waktu}</span>
+            <span class="font-semibold" style="color: white;">--:--</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO SECTION -->
+  <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)]"
+           style="padding-top: clamp(2rem,5vw,4rem); padding-bottom: 2.5rem;">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-5 items-start">
+
+      <!-- TODAY CARD -->
+      <div
+        class="rounded-3xl relative overflow-hidden animate-fade-up"
+        style="background: var(--green-800); padding: 2.5rem 2.5rem 2rem;"
+      >
+        <!-- Pattern overlay -->
+        <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="hex" x="0" y="0" width="56" height="48" patternUnits="userSpaceOnUse">
+                <path d="M28 4 L52 18 L52 46 L28 60 L4 46 L4 18 Z"
+                      fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#hex)"/>
+          </svg>
+        </div>
+
+        <div class="relative z-10">
+          <!-- Bismillah -->
+          <div class="text-center mb-4 text-[1.6rem]"
+               style="color: rgba(226,188,69,.7); font-family: 'Amiri', serif;">
+            بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
+          </div>
+
+          <!-- Label -->
+          <p class="text-[0.72rem] font-semibold uppercase tracking-widest mb-2"
+             style="color: var(--green-200); opacity: .7;">
+            Hari Ini
+          </p>
+
+          <!-- Tanggal utama -->
+          <h1 class="leading-tight mb-1"
+              style="font-family:'Lora',serif; font-size:clamp(2rem,4vw,2.8rem);
+                     font-weight:700; color:white; line-height:1.1;">
+            {hariIni}, {tanggal} {bulan} {tahun}
+          </h1>
+          <p class="mb-6" style="font-size:1rem; color:var(--green-200);">
+            {todayHijri.formatted}
+          </p>
+
+          <!-- Date Pills Grid -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- Hijri -->
+            <div class="rounded-xl p-3"
+                 style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);">
+              <p class="text-[0.65rem] font-semibold uppercase tracking-widest mb-1"
+                 style="color:rgba(255,255,255,.5);">Hijriah</p>
+              <p class="text-[1.05rem] font-semibold" style="color:white;">
+                {todayHijri.day} {todayHijri.monthNameShort}
+              </p>
+              <p class="text-[0.72rem]" style="color:var(--green-200);">
+                {todayHijri.year} H
+              </p>
+            </div>
+
+            <!-- Masehi -->
+            <div class="rounded-xl p-3"
+                 style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);">
+              <p class="text-[0.65rem] font-semibold uppercase tracking-widest mb-1"
+                 style="color:rgba(255,255,255,.5);">Masehi</p>
+              <p class="text-[1.05rem] font-semibold" style="color:white;">
+                {tanggal} {bulan.slice(0,3)}
+              </p>
+              <p class="text-[0.72rem]" style="color:var(--green-200);">{tahun}</p>
+            </div>
+
+            <!-- Weton (gold, full width) -->
+            <div class="col-span-2 rounded-xl p-3"
+                 style="background:rgba(201,162,39,.15); border:1px solid rgba(201,162,39,.3);">
+              <p class="text-[0.65rem] font-semibold uppercase tracking-widest mb-1"
+                 style="color:rgba(201,162,39,.7);">Weton Jawa</p>
+              <div class="flex items-center justify-between">
+                <p class="text-[1.2rem] font-semibold"
+                   style="font-family:'Lora',serif; color:var(--gold-400);">
+                  {todayJawa.weton}
+                </p>
+                <span class="text-[0.72rem] font-semibold px-2 py-0.5 rounded-full"
+                      style="background:rgba(201,162,39,.2); color:var(--gold-400);">
+                  Neptu {todayJawa.neptu}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR PREVIEW -->
+      <div class="animate-fade-up-delay">
+        <CalendarGrid
+          year={currentYear}
+          month={currentMonth}
+          holidays={holidays}
+          officialDates={officialDates}
+          compact={false}
+        />
+      </div>
+
+    </div>
   </section>
+
+  <!-- TOOLS GRID -->
+  <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] mb-10">
+    <h2 class="text-[1.4rem] font-semibold mb-5"
+        style="font-family:'Lora',serif; color:var(--ink);">
+      Tools Islami
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {[
+        { href:'/konversi',          icon:'🔄', title:'Konverter Tanggal',   desc:'Konversi Masehi ↔ Hijri ↔ Jawa secara instan' },
+        { href:'/weton',             icon:'⭐', title:'Kalkulator Weton',    desc:'Cari tahu weton dan neptu tanggal lahirmu' },
+        { href:'/sholat/jakarta',    icon:'🕌', title:'Jadwal Sholat',       desc:'Waktu sholat 5 waktu untuk 100+ kota Indonesia' },
+        { href:'/ramadan/2026',      icon:'🌙', title:'Kalender Ramadan',    desc:'Imsakiyah lengkap Ramadan 2026 per kota' },
+        { href:'/hari-besar/idul-fitri/2026', icon:'🎉', title:'Hari Besar Islam', desc:'Tanggal resmi Kemenag + countdown hari besar' },
+        { href:'/libur-nasional/2026', icon:'📅', title:'Libur Nasional',   desc:'Daftar hari libur & cuti bersama 2026' },
+      ].map(tool => (
+        <a
+          href={tool.href}
+          class="group relative block rounded-2xl p-5 transition-all duration-200 no-underline overflow-hidden"
+          style="background:white; border:1px solid rgba(29,107,66,.12);"
+        >
+          <div class="absolute top-0 left-0 right-0 h-[3px] origin-left transition-transform duration-[250ms] ease-out scale-x-0 group-hover:scale-x-100"
+               style="background:var(--green-500);"></div>
+          <span class="absolute top-4 right-4 text-[0.9rem] opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                style="color:var(--green-400);">→</span>
+
+          <div class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-xl mb-3"
+               style="background:var(--green-50);">
+            {tool.icon}
+          </div>
+          <h3 class="text-[0.92rem] font-semibold mb-1" style="color:var(--ink);">
+            {tool.title}
+          </h3>
+          <p class="text-[0.78rem] leading-relaxed" style="color:var(--ink-light);">
+            {tool.desc}
+          </p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- HARI BESAR MENDATANG -->
+  {upcomingEvents.length > 0 && (
+    <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] mb-10">
+      <h2 class="text-[1.4rem] font-semibold mb-5"
+          style="font-family:'Lora',serif; color:var(--ink);">
+        Hari Besar Mendatang
+      </h2>
+      <div class="flex flex-col gap-3">
+        {upcomingEvents.map(event => {
+          const hariBesar = hariBesarList.find(h => h.event_id === event.event);
+          if (!event.bestDate || !hariBesar) return null;
+
+          const eventDate = new Date(event.bestDate);
+          const daysLeft  = Math.ceil((eventDate.getTime() - today.getTime()) / 86_400_000);
+          const tglFormatted = eventDate.toLocaleDateString('id-ID', {
+            day:'numeric', month:'long', year:'numeric'
+          });
+
+          return (
+            <a
+              href={`/hari-besar/${hariBesar.slug}/${eventDate.getFullYear()}`}
+              class="flex items-center gap-4 rounded-xl p-4 transition-colors duration-150 no-underline group"
+              style="background:white; border:1px solid rgba(29,107,66,.12);"
+            >
+              <div class="min-w-[72px] rounded-lg p-2 text-center flex-shrink-0"
+                   style="background:var(--green-50);">
+                <p class="text-[1.3rem] font-bold leading-none" style="color:var(--green-700);">
+                  {daysLeft}
+                </p>
+                <p class="text-[0.62rem] uppercase tracking-wider mt-0.5"
+                   style="color:var(--ink-light);">hari lagi</p>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <h3 class="text-[0.9rem] font-semibold truncate" style="color:var(--ink);">
+                  {hariBesar.nama}
+                </h3>
+                <p class="text-[0.78rem] mt-0.5" style="color:var(--ink-light);">
+                  {tglFormatted}
+                  {!event.isConfirmed && (
+                    <span class="ml-1.5 text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full"
+                          style="background:#FEF3C7; color:#92400E;">Perkiraan</span>
+                  )}
+                </p>
+              </div>
+
+              {hariBesar.libur_nasional && (
+                <span class="flex-shrink-0 text-[0.65rem] font-semibold px-2 py-1 rounded-full hidden sm:inline"
+                      style="background:var(--gold-100); color:var(--gold-600);">
+                  Hari Libur
+                </span>
+              )}
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  )}
+
+  <!-- RAMADAN BANNER -->
+  {daysToRamadan && daysToRamadan > 0 && (
+    <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] mb-10">
+      <div
+        class="rounded-2xl relative overflow-hidden"
+        style="background: linear-gradient(135deg, var(--green-800) 0%, var(--green-900) 100%);
+               padding: 1.8rem 2rem;"
+      >
+        <div class="absolute right-[-20px] top-[-20px] w-[200px] h-[200px] pointer-events-none opacity-5" aria-hidden="true">
+          <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="white" stroke-width="2"/><circle cx="100" cy="100" r="60" fill="none" stroke="white" stroke-width="2"/></svg>
+        </div>
+
+        <div class="relative z-10 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-6 items-center">
+          <div>
+            <p class="text-[0.7rem] font-semibold uppercase tracking-widest mb-2"
+               style="color:var(--green-200); opacity:.7;">Menuju Ramadan</p>
+            <h2 class="text-[1.5rem] font-bold text-white mb-2"
+                style="font-family:'Lora',serif;">
+              Persiapkan Dirimu
+            </h2>
+            <p class="text-[0.85rem]" style="color:var(--green-200);">
+              Ramadan {ramadanDate?.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}
+              {!ramadanData?.isConfirmed && ' (perkiraan)'}
+            </p>
+          </div>
+
+          <div class="flex items-end gap-4">
+            <div class="text-center">
+              <p class="text-[1.6rem] font-bold"
+                 style="font-family:'Lora',serif; color:var(--gold-400); line-height:1;">
+                {daysToRamadan}
+              </p>
+              <p class="text-[0.62rem] uppercase tracking-wider mt-1"
+                 style="color:var(--green-200);">Hari</p>
+            </div>
+            <a
+              href="/ramadan/2026"
+              class="px-5 py-2.5 rounded-[10px] text-[0.85rem] font-bold transition-colors duration-150 no-underline"
+              style="background:var(--gold-500); color:var(--green-900);"
+            >
+              Lihat Imsakiyah →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
 </BaseLayout>

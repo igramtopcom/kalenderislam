@@ -1,1 +1,178 @@
-<!-- CalendarGrid.astro placeholder -->
+---
+import { gregorianToHijri, gregorianToJawa, formatDateKey } from '@/lib/calendar';
+import type { ProcessedOfficialDate, NationalHoliday } from '@/lib/types';
+
+interface Props {
+  year: number;
+  month: number; // 0-indexed
+  holidays: NationalHoliday[];
+  officialDates: ProcessedOfficialDate[];
+  compact?: boolean;
+}
+
+const { year, month, holidays, officialDates, compact = false } = Astro.props;
+
+const BULAN_INDO = [
+  'Januari','Februari','Maret','April','Mei','Juni',
+  'Juli','Agustus','September','Oktober','November','Desember'
+];
+const HARI_HEADER = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+// Build calendar grid
+const firstDay = new Date(year, month, 1);
+const lastDay = new Date(year, month + 1, 0);
+const daysInMonth = lastDay.getDate();
+const startDow = firstDay.getDay(); // 0=Sunday
+
+// Previous month fill
+const prevMonthDays = new Date(year, month, 0).getDate();
+const prevFill = Array.from({ length: startDow }, (_, i) => ({
+  day: prevMonthDays - startDow + 1 + i,
+  isOtherMonth: true,
+  date: new Date(year, month - 1, prevMonthDays - startDow + 1 + i),
+}));
+
+// Current month
+const currentDays = Array.from({ length: daysInMonth }, (_, i) => ({
+  day: i + 1,
+  isOtherMonth: false,
+  date: new Date(year, month, i + 1),
+}));
+
+// Next month fill
+const totalCells = prevFill.length + currentDays.length;
+const nextFillCount = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+const nextFill = Array.from({ length: nextFillCount }, (_, i) => ({
+  day: i + 1,
+  isOtherMonth: true,
+  date: new Date(year, month + 1, i + 1),
+}));
+
+const allDays = [...prevFill, ...currentDays, ...nextFill];
+
+// Holiday lookup
+const holidayMap = new Map<string, NationalHoliday>();
+for (const h of holidays) holidayMap.set(h.tanggal, h);
+
+// Today check
+const now = new Date();
+const todayKey = formatDateKey(now);
+
+// Hijri month label
+const midMonthHijri = gregorianToHijri(new Date(year, month, 15));
+---
+
+<div class="rounded-2xl overflow-hidden"
+     style="background:white; border:1px solid rgba(29,107,66,.12);
+            box-shadow: 0 4px 24px rgba(13,61,34,.06);">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-5 py-3"
+       style="background:var(--green-50); border-bottom:1px solid rgba(29,107,66,.12);">
+    <div>
+      <h2 class="font-serif text-[1.05rem] font-semibold" style="font-family:'Lora',serif; color:var(--ink);">
+        {BULAN_INDO[month]} {year}
+      </h2>
+      <p class="text-[0.78rem]" style="color:var(--ink-light);">
+        {midMonthHijri.monthName} {midMonthHijri.year} H
+      </p>
+    </div>
+    <div class="flex items-center gap-1">
+      {month > 0 || year > 2024 ? (
+        <a href={`/kalender/${month === 0 ? year - 1 : year}/${BULAN_INDO[month === 0 ? 11 : month - 1].toLowerCase()}`}
+           class="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-colors duration-150 no-underline"
+           style="border:1px solid rgba(29,107,66,.12); background:white; color:var(--ink-muted);"
+           aria-label="Bulan sebelumnya">
+          ‹
+        </a>
+      ) : null}
+      {month < 11 || year < 2032 ? (
+        <a href={`/kalender/${month === 11 ? year + 1 : year}/${BULAN_INDO[month === 11 ? 0 : month + 1].toLowerCase()}`}
+           class="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-colors duration-150 no-underline"
+           style="border:1px solid rgba(29,107,66,.12); background:white; color:var(--ink-muted);"
+           aria-label="Bulan berikutnya">
+          ›
+        </a>
+      ) : null}
+    </div>
+  </div>
+
+  <!-- Days Header -->
+  <div class="grid grid-cols-7 gap-0.5 px-3 pt-3">
+    {HARI_HEADER.map((h, i) => (
+      <div class="text-center text-[0.68rem] font-semibold uppercase tracking-wider pb-2"
+           style={i === 5 ? 'color:var(--green-600);' : 'color:var(--ink-light);'}>
+        {h}
+      </div>
+    ))}
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="grid grid-cols-7 gap-0.5 px-3 pb-3">
+    {allDays.map(cell => {
+      const dateKey = formatDateKey(cell.date);
+      const isToday = dateKey === todayKey && !cell.isOtherMonth;
+      const isFriday = cell.date.getDay() === 5;
+      const holiday = !cell.isOtherMonth ? holidayMap.get(dateKey) : undefined;
+      const hijri = !cell.isOtherMonth ? gregorianToHijri(cell.date) : null;
+      const jawa = !cell.isOtherMonth ? gregorianToJawa(cell.date) : null;
+
+      return (
+        <div
+          class={`relative aspect-square rounded-[10px] flex flex-col items-center justify-center p-0.5 transition-colors duration-150
+                  ${cell.isOtherMonth ? 'opacity-30' : 'cursor-pointer'}
+                  ${!isToday && !cell.isOtherMonth ? 'hover:bg-green-50' : ''}`}
+          style={isToday ? 'background:var(--green-700);' : ''}
+        >
+          {/* Masehi date */}
+          <span class={`text-[0.85rem] font-semibold leading-none
+                        ${isToday ? 'text-white' : isFriday ? 'text-green-700' : 'text-ink'}`}>
+            {cell.day}
+          </span>
+
+          {/* Hijri date */}
+          {hijri && (
+            <span class="text-[0.58rem] leading-none mt-0.5"
+                  style={isToday ? 'color:var(--green-200);' : 'color:var(--green-600);'}>
+              {hijri.day}
+            </span>
+          )}
+
+          {/* Jawa pasaran */}
+          {jawa && !compact && (
+            <span class="text-[0.55rem] leading-none mt-px"
+                  style={isToday ? 'color:rgba(255,255,255,.65);' : 'color:var(--ink-light);'}>
+              {jawa.pasaran.slice(0, 3)}
+            </span>
+          )}
+
+          {/* Holiday dot */}
+          {holiday && (
+            <div class="absolute bottom-[3px] w-1 h-1 rounded-full"
+                 style="background:var(--gold-500);"></div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+
+  <!-- Footer -->
+  <div class="flex items-center justify-between px-4 py-2"
+       style="border-top:1px solid rgba(29,107,66,.12);">
+    <a href={`/kalender/${year}`}
+       class="text-[0.75rem] font-medium no-underline transition-colors duration-150"
+       style="color:var(--green-600);">
+      Lihat Tahun {year} →
+    </a>
+    <div class="flex items-center gap-3">
+      <span class="flex items-center gap-1 text-[0.65rem]" style="color:var(--ink-light);">
+        <span class="w-1.5 h-1.5 rounded-full inline-block" style="background:var(--gold-500);"></span>
+        Libur
+      </span>
+      <span class="flex items-center gap-1 text-[0.65rem]" style="color:var(--ink-light);">
+        <span class="w-1.5 h-1.5 rounded-full inline-block" style="background:var(--green-700);"></span>
+        Hari Ini
+      </span>
+    </div>
+  </div>
+</div>
