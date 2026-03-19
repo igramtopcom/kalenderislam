@@ -30,17 +30,53 @@ const officialDates = await getKemenagOfficialDates(currentYear);
 const holidays      = await getNationalHolidaysSafe(currentYear);
 
 // ── Hari besar mendatang ─────────────────────────────────────────────────────
+import { hijriToGregorian } from '@/lib/calendar';
+
 const hariBesarList = getAllHariBesar();
-const upcomingEvents = officialDates
-  .filter(d => d.bestDate && new Date(d.bestDate) > today)
-  .sort((a, b) => new Date(a.bestDate!).getTime() - new Date(b.bestDate!).getTime())
+
+// Fix: parse dates with WIB timezone to avoid UTC midnight mismatch
+const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+let upcomingEvents = officialDates
+  .filter(d => {
+    if (!d.bestDate) return false;
+    const eventDate = new Date(d.bestDate + 'T00:00:00');
+    return eventDate >= todayStart;
+  })
+  .sort((a, b) =>
+    new Date(a.bestDate!).getTime() - new Date(b.bestDate!).getTime()
+  )
   .slice(0, 4);
+
+// Fallback: if Supabase returns empty, generate from hari-besar.json + hijriToGregorian
+if (upcomingEvents.length === 0) {
+  const fallbackEvents = hariBesarList
+    .map(hb => {
+      const estDate = hijriToGregorian(hb.hijriDay, hb.hijriMonth, todayHijri.year);
+      const estStr = `${estDate.getFullYear()}-${String(estDate.getMonth() + 1).padStart(2, '0')}-${String(estDate.getDate()).padStart(2, '0')}`;
+      return {
+        event: hb.event_id,
+        tahun_masehi: estDate.getFullYear(),
+        bestDate: estStr,
+        tanggal_resmi: null,
+        tanggal_muhammadiyah: null,
+        tanggal_perkiraan: estStr,
+        isConfirmed: false,
+        source: 'perkiraan' as const,
+        catatan: null,
+      };
+    })
+    .filter(d => new Date(d.bestDate + 'T00:00:00') >= todayStart)
+    .sort((a, b) => new Date(a.bestDate).getTime() - new Date(b.bestDate).getTime())
+    .slice(0, 4);
+  upcomingEvents = fallbackEvents;
+}
 
 // ── Countdown Ramadan ────────────────────────────────────────────────────────
 const ramadanData  = officialDates.find(d => d.event === 'ramadan_start');
-const ramadanDate  = ramadanData?.bestDate ? new Date(ramadanData.bestDate) : null;
+const ramadanDate  = ramadanData?.bestDate ? new Date(ramadanData.bestDate + 'T00:00:00') : null;
 const daysToRamadan = ramadanDate
-  ? Math.ceil((ramadanDate.getTime() - today.getTime()) / 86_400_000)
+  ? Math.ceil((ramadanDate.getTime() - todayStart.getTime()) / 86_400_000)
   : null;
 
 const metaTitle = `Kalender Islam ${tahun} — Tanggal Hijriah & Jawa Hari Ini | KalenderIslam.id`;
@@ -163,8 +199,8 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
           const hariBesar = hariBesarList.find(h => h.event_id === event.event);
           if (!event.bestDate || !hariBesar) return null;
 
-          const eventDate = new Date(event.bestDate);
-          const daysLeft  = Math.ceil((eventDate.getTime() - today.getTime()) / 86_400_000);
+          const eventDate = new Date(event.bestDate + 'T00:00:00');
+          const daysLeft  = Math.ceil((eventDate.getTime() - todayStart.getTime()) / 86_400_000);
           const tglFormatted = eventDate.toLocaleDateString('id-ID', {
             day:'numeric', month:'long', year:'numeric'
           });
