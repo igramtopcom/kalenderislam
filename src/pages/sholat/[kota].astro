@@ -1,7 +1,186 @@
 ---
-export function getStaticPaths() {
-  return [{ params: { kota: 'jakarta' } }];
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JsonLD from '@/components/seo/JsonLD.astro';
+import PrayerTimes from '@/components/islands/PrayerTimes.tsx';
+import { getAllKota, getKotaBySlug } from '@/lib/data';
+import { getSholatTimesFormatted, getTimezoneLabel, gregorianToHijri, gregorianToJawa } from '@/lib/calendar';
+
+export async function getStaticPaths() {
+  return getAllKota().map(kota => ({
+    params: { kota: kota.slug },
+    props:  { kotaSlug: kota.slug },
+  }));
 }
-const { kota } = Astro.params;
+
+const { kotaSlug } = Astro.props as { kotaSlug: string };
+const kota = getKotaBySlug(kotaSlug);
+if (!kota) return Astro.redirect('/sholat/jakarta');
+
+const today    = new Date();
+const todaySSR = getSholatTimesFormatted(kota.lat, kota.lng, today, kota.timezone);
+const tzLabel  = getTimezoneLabel(kota.timezone);
+const todayHijri = gregorianToHijri(today);
+const todayJawa  = gregorianToJawa(today);
+
+const HARI_INDO  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN_INDO = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+const weeklySchedule = Array.from({ length: 7 }, (_, i) => {
+  const date = new Date(); date.setDate(date.getDate() + i);
+  const times = getSholatTimesFormatted(kota.lat, kota.lng, date, kota.timezone);
+  return {
+    isToday: i === 0, hariNama: HARI_INDO[date.getDay()],
+    tanggal: `${date.getDate()} ${BULAN_INDO[date.getMonth()]}`,
+    isFriday: date.getDay() === 5, ...times,
+  };
+});
+
+const kotaProvinsi = getAllKota().filter(k => k.province === kota.province && k.slug !== kota.slug).slice(0, 6);
+
+const todayStr = `${today.getDate()} ${BULAN_INDO[today.getMonth()]} ${today.getFullYear()}`;
+const title = `Jadwal Sholat ${kota.name} Hari Ini ${todayStr} | KalenderIslam.id`;
+const desc  = `Waktu sholat ${kota.name} hari ini: Subuh ${todaySSR.fajr}, Dzuhur ${todaySSR.dhuhr}, Ashar ${todaySSR.asr}, Maghrib ${todaySSR.maghrib}, Isya ${todaySSR.isha} ${tzLabel}. Metode Kemenag RI.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'FAQPage',
+  mainEntity: [
+    { '@type': 'Question', name: `Jam berapa waktu sholat Subuh ${kota.name} hari ini?`,
+      acceptedAnswer: { '@type': 'Answer', text: `Waktu sholat Subuh ${kota.name} hari ini (${todayStr}) adalah pukul ${todaySSR.fajr} ${tzLabel}.` } },
+    { '@type': 'Question', name: `Jam berapa Maghrib ${kota.name} hari ini?`,
+      acceptedAnswer: { '@type': 'Answer', text: `Waktu Maghrib ${kota.name} hari ini (${todayStr}) adalah pukul ${todaySSR.maghrib} ${tzLabel}.` } },
+  ],
+};
 ---
-<html><body><p>Sholat {kota} — placeholder</p></body></html>
+
+<BaseLayout title={title} description={desc} canonicalPath={`/sholat/${kotaSlug}`}>
+  <JsonLD schema={jsonLd} />
+
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+
+    <div class="flex items-center gap-2 mb-6 text-[0.78rem]">
+      <a href="/" class="no-underline" style="color:var(--ink-light) !important;">Beranda</a>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="font-medium" style="color:var(--ink);">Jadwal Sholat {kota.name}</span>
+    </div>
+
+    <div class="mb-6">
+      <h1 class="text-[1.8rem] font-bold" style="font-family:'Lora',serif; color:var(--ink);">
+        Jadwal Sholat {kota.name}
+      </h1>
+      <p class="text-[0.9rem] mt-1" style="color:var(--ink-light);">
+        {kota.name}, {kota.province} · Zona {tzLabel} · {todayHijri.formatted} · {todayJawa.weton}
+      </p>
+    </div>
+
+    <!-- Prayer Times -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-[1.1rem] font-semibold" style="font-family:'Lora',serif; color:var(--ink);">Waktu Sholat Hari Ini</h2>
+        <span class="text-[0.75rem]" style="color:var(--ink-light);">{todayStr}</span>
+      </div>
+
+      <!-- SSR fallback -->
+      <div id="prayer-ssr" class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {[
+          { name: 'Subuh', time: todaySSR.fajr }, { name: 'Dzuhur', time: todaySSR.dhuhr },
+          { name: 'Ashar', time: todaySSR.asr }, { name: 'Maghrib', time: todaySSR.maghrib },
+          { name: 'Isya', time: todaySSR.isha },
+        ].map(p => (
+          <div class="rounded-2xl p-4 text-center" style="background:white; border:1px solid rgba(29,107,66,.12);">
+            <p class="text-[0.72rem] font-semibold uppercase tracking-wider mb-1" style="color:var(--ink-light);">{p.name}</p>
+            <p class="text-[1.2rem] font-bold tabular-nums" style="font-family:'Lora',serif; color:var(--ink);">{p.time}</p>
+            <p class="text-[0.65rem] mt-0.5" style="color:var(--ink-light);">{tzLabel}</p>
+          </div>
+        ))}
+      </div>
+
+      <!-- Island replaces SSR -->
+      <div id="prayer-island">
+        <PrayerTimes lat={kota.lat} lng={kota.lng} timezone={kota.timezone} kotaName={kota.name} client:load />
+      </div>
+    </div>
+
+    <!-- Extra info -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+      {[
+        { label: 'Imsak', time: todaySSR.imsak, note: 'Subuh - 10 mnt' },
+        { label: 'Terbit', time: todaySSR.sunrise, note: 'Matahari terbit' },
+        { label: 'Metode', time: 'Kemenag RI', note: 'Fajr 20°, Isha 18°' },
+        { label: 'Elevasi', time: `${kota.elevation}m`, note: kota.province },
+      ].map(item => (
+        <div class="rounded-xl p-4" style="background:var(--green-50); border:1px solid rgba(29,107,66,.1);">
+          <p class="text-[0.7rem] uppercase tracking-wider mb-1" style="color:var(--ink-light);">{item.label}</p>
+          <p class="text-[0.95rem] font-semibold tabular-nums" style="color:var(--ink);">{item.time}</p>
+          <p class="text-[0.68rem] mt-0.5" style="color:var(--ink-light);">{item.note}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- 7 day schedule -->
+    <div class="mb-8">
+      <h2 class="text-[1.1rem] font-semibold mb-4" style="font-family:'Lora',serif; color:var(--ink);">Jadwal 7 Hari ke Depan</h2>
+      <div class="rounded-2xl overflow-hidden hidden sm:block" style="border:1px solid rgba(29,107,66,.12);">
+        <div class="grid grid-cols-[120px_repeat(5,1fr)] gap-0 text-[0.7rem] font-semibold uppercase tracking-wider"
+             style="background:var(--green-800); color:var(--green-200);">
+          {['Tanggal','Subuh','Dzuhur','Ashar','Maghrib','Isya'].map((h, i) => (
+            <div class={`px-3 py-3 ${i > 0 ? 'text-center' : ''}`} style={i > 0 ? 'border-left:1px solid rgba(255,255,255,.1);' : ''}>{h}</div>
+          ))}
+        </div>
+        {weeklySchedule.map(day => (
+          <div class="grid grid-cols-[120px_repeat(5,1fr)]"
+               style={`border-top:1px solid rgba(29,107,66,.06); background:${day.isToday ? 'var(--green-50)' : day.isFriday ? '#FAFFF9' : 'white'};`}>
+            <div class="px-3 py-3">
+              <p class="text-[0.82rem] font-semibold" style={day.isToday ? 'color:var(--green-700);' : day.isFriday ? 'color:var(--green-600);' : 'color:var(--ink);'}>
+                {day.hariNama}
+                {day.isToday && (<span class="ml-1 text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full" style="background:var(--green-100); color:var(--green-700);">Hari ini</span>)}
+              </p>
+              <p class="text-[0.72rem]" style="color:var(--ink-light);">{day.tanggal}</p>
+            </div>
+            {[day.fajr, day.dhuhr, day.asr, day.maghrib, day.isha].map(t => (
+              <div class="px-3 py-3 text-center" style="border-left:1px solid rgba(29,107,66,.06);">
+                <span class="text-[0.85rem] font-semibold tabular-nums" style="color:var(--ink);">{t}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <!-- Mobile: simple cards -->
+      <div class="sm:hidden space-y-2">
+        {weeklySchedule.map(day => (
+          <div class="rounded-xl p-3" style={`background:${day.isToday ? 'var(--green-50)' : 'white'}; border:1px solid rgba(29,107,66,.1);`}>
+            <p class="text-[0.82rem] font-semibold mb-1" style={day.isToday ? 'color:var(--green-700);' : 'color:var(--ink);'}>{day.hariNama}, {day.tanggal}</p>
+            <div class="flex justify-between text-[0.78rem]">
+              {[{l:'Subuh',v:day.fajr},{l:'Dzuhur',v:day.dhuhr},{l:'Ashar',v:day.asr},{l:'Maghrib',v:day.maghrib},{l:'Isya',v:day.isha}].map(i => (
+                <div class="text-center"><p class="text-[0.6rem]" style="color:var(--ink-light);">{i.l}</p><p class="font-semibold tabular-nums" style="color:var(--ink);">{i.v}</p></div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Nearby cities -->
+    {kotaProvinsi.length > 0 && (
+      <div class="rounded-2xl p-5" style="background:white; border:1px solid rgba(29,107,66,.12);">
+        <h2 class="text-[0.9rem] font-semibold mb-3" style="color:var(--ink);">Kota Lain di {kota.province}</h2>
+        <div class="flex flex-wrap gap-2">
+          {kotaProvinsi.map(k => (
+            <a href={`/sholat/${k.slug}`} class="px-3 py-1.5 rounded-lg text-[0.78rem] font-medium no-underline transition-colors duration-150"
+               style="background:var(--green-50); color:var(--green-700) !important; border:1px solid rgba(29,107,66,.15);">{k.name}</a>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<script>
+  const ssrEl = document.getElementById('prayer-ssr');
+  const islandEl = document.getElementById('prayer-island');
+  if (islandEl && ssrEl) {
+    const observer = new MutationObserver(() => {
+      if (islandEl.children.length > 0) { ssrEl.style.display = 'none'; observer.disconnect(); }
+    });
+    observer.observe(islandEl, { childList: true });
+  }
+</script>

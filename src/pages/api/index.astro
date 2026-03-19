@@ -1,0 +1,45 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const endpoints = [
+  { method: 'GET', path: '/api/hijri', params: '?date=YYYY-MM-DD', desc: 'Konversi tanggal Masehi ke Hijriah', example: '/api/hijri?date=2026-03-19' },
+  { method: 'GET', path: '/api/jawa', params: '?date=YYYY-MM-DD', desc: 'Konversi tanggal Masehi ke Kalender Jawa (weton + neptu)', example: '/api/jawa?date=1945-08-17' },
+  { method: 'GET', path: '/api/sholat', params: '?kota=jakarta&date=YYYY-MM-DD', desc: 'Jadwal sholat untuk kota tertentu', example: '/api/sholat?kota=jakarta' },
+  { method: 'GET', path: '/api/hari-besar', params: '?tahun=2026', desc: 'Daftar hari besar Islam', example: '/api/hari-besar?tahun=2026' },
+];
+---
+
+<BaseLayout
+  title="API KalenderIslam.id — Dokumentasi REST API Kalender Islam"
+  description="REST API publik untuk konversi tanggal Hijri, Jawa, dan jadwal sholat Indonesia."
+  canonicalPath="/api"
+>
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+    <h1 class="text-[1.8rem] font-bold mb-3" style="font-family:'Lora',serif; color:var(--ink);">
+      API KalenderIslam.id
+    </h1>
+    <p class="text-[0.95rem] mb-8" style="color:var(--ink-light);">
+      REST API publik — gratis untuk penggunaan non-komersial.
+      Base URL: <code style="background:var(--green-50); padding:2px 6px; border-radius:4px; color:var(--green-700);">https://kalenderislam.id</code>
+    </p>
+
+    <div class="space-y-4">
+      {endpoints.map(ep => (
+        <div class="rounded-2xl p-5" style="background:white; border:1px solid rgba(29,107,66,.12);">
+          <div class="flex items-start gap-3 mb-3 flex-wrap">
+            <span class="px-2 py-0.5 rounded text-[0.72rem] font-bold flex-shrink-0" style="background:var(--green-100); color:var(--green-700);">{ep.method}</span>
+            <code class="text-[0.9rem] font-semibold" style="color:var(--ink);">{ep.path}{ep.params}</code>
+          </div>
+          <p class="text-[0.85rem] mb-3" style="color:var(--ink-light);">{ep.desc}</p>
+          <div class="rounded-lg px-4 py-2.5 text-[0.8rem] font-mono" style="background:var(--green-900); color:var(--green-200);">
+            GET {ep.example}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-8 rounded-xl p-4 text-[0.82rem]" style="background:var(--green-50); border:1px solid rgba(29,107,66,.12); color:var(--ink-light);">
+      <strong style="color:var(--ink);">Rate limit:</strong> 100 request/menit per IP. Untuk penggunaan komersial, hubungi kami.
+    </div>
+  </div>
+</BaseLayout>

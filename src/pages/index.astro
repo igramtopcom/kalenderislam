@@ -4,6 +4,7 @@ import { gregorianToHijri, gregorianToJawa } from '@/lib/calendar';
 import { getKemenagOfficialDates, getNationalHolidaysSafe, getAllHariBesar } from '@/lib/data';
 import CalendarGrid from '@/components/calendar/CalendarGrid.astro';
 import TodayWidget from '@/components/islands/TodayWidget.tsx';
+import PrayerBar from '@/components/islands/PrayerBar.tsx';
 
 // ── Tanggal hari ini (server-side) ───────────────────────────────────────────
 const today       = new Date();
@@ -48,22 +49,10 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
 
 <BaseLayout title={metaTitle} description={metaDesc} canonicalPath="/">
 
-  <!-- PRAYER TIMES BAR (placeholder — Sprint S-08) -->
+  <!-- PRAYER TIMES BAR (real-time with geolocation) -->
   <div style="background: var(--green-900);" class="py-2 px-[clamp(1rem,4vw,3rem)]">
-    <div class="max-w-site mx-auto flex items-center justify-between gap-4 overflow-x-auto">
-      <span class="text-[0.72rem] font-semibold uppercase tracking-widest whitespace-nowrap flex-shrink-0"
-            style="color: var(--green-200);">
-        Jakarta
-      </span>
-      <div class="flex items-center gap-2 flex-wrap">
-        {['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya'].map(waktu => (
-          <div class="flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.72rem]"
-               style="background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09);">
-            <span style="color: rgba(255,255,255,.5);">{waktu}</span>
-            <span class="font-semibold" style="color: white;">--:--</span>
-          </div>
-        ))}
-      </div>
+    <div class="max-w-site mx-auto">
+      <PrayerBar client:load />
     </div>
   </div>
 
