@@ -20,3 +20,12 @@ export const getDefaultPrayerMethod = (): PrayerMethod =>
   (prayerMethodsData as PrayerMethod[]).find(m => m.isDefault)!;
 
 export { getNationalHolidays, getHolidayByDate, isHoliday, formatDateKey } from './calendar/holidays';
+
+// SERVER-SIDE ONLY — Supabase query exports
+export {
+  getKemenagOfficialDates,
+  getOfficialDateByEvent,
+  getNationalHolidaysFromDB,
+  getHolidayMapForYear,
+  getNationalHolidaysSafe,
+} from './queries';

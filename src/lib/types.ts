@@ -35,6 +35,50 @@ export interface HijriMonthEntry {
   source: HijriSource;
 }
 
+// ─── Supabase Table Types ────────────────────────────────────────────────────
+
+export type OfficialDateEvent =
+  | 'ramadan_start'
+  | 'idul_fitri'
+  | 'idul_adha'
+  | 'isra_miraj'
+  | 'maulid_nabi'
+  | 'muharram'
+  | 'nuzulul_quran'
+  | 'lailatul_qadar'
+  | 'hari_arafah';
+
+export interface OfficialDate {
+  id:                    string;
+  event:                 OfficialDateEvent;
+  tahun_masehi:          number;
+  tanggal_resmi:         string | null;
+  tanggal_muhammadiyah:  string | null;
+  tanggal_perkiraan:     string | null;
+  catatan:               string | null;
+  updated_at:            string;
+}
+
+export interface NationalHoliday {
+  tanggal:    string;   // 'YYYY-MM-DD'
+  nama:       string;
+  tipe:       'libur_nasional' | 'cuti_bersama';
+  agama:      'islam' | 'kristen' | 'hindu' | 'nasional' | null;
+  created_at: string;
+}
+
+export interface ProcessedOfficialDate {
+  event:               OfficialDateEvent;
+  tahun_masehi:        number;
+  bestDate:            string | null;
+  tanggal_resmi:       string | null;
+  tanggal_muhammadiyah: string | null;
+  tanggal_perkiraan:   string | null;
+  isConfirmed:         boolean;
+  source:              'kemenag_official' | 'muhammadiyah' | 'perkiraan';
+  catatan:             string | null;
+}
+
 export interface PrayerMethod {
   id: string;
   nama: string;
