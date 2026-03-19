@@ -50,7 +50,10 @@ function calcPerkiraanFromAlgo(event: string, tahun: number): string | null {
 export async function getKemenagOfficialDates(
   tahun: number
 ): Promise<ProcessedOfficialDate[]> {
-  if (!supabase) return [];
+  if (!supabase) {
+    // No Supabase client (env vars missing at build time) → use algorithm fallback
+    return generateFallbackOfficialDates(tahun);
+  }
 
   const { data, error } = await supabase
     .from('official_dates')
@@ -65,7 +68,7 @@ export async function getKemenagOfficialDates(
   const rows = (data as OfficialDate[] | null) ?? [];
   if (rows.length > 0) return rows.map(processOfficialDate);
 
-  // Fallback: generate from algorithm when Supabase unavailable/empty
+  // Fallback: generate from algorithm when Supabase returns empty
   return generateFallbackOfficialDates(tahun);
 }
 
