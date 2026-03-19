@@ -1,2 +1,3 @@
 export * from './hijri';
-// jawa dan prayer akan ditambahkan di task berikutnya
+export * from './jawa';
+// prayer akan ditambahkan di S02-003
