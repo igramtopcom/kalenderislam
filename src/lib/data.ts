@@ -18,3 +18,5 @@ export const getAllProvinsi = (): Provinsi[] => provinsiData as Provinsi[];
 
 export const getDefaultPrayerMethod = (): PrayerMethod =>
   (prayerMethodsData as PrayerMethod[]).find(m => m.isDefault)!;
+
+export { getNationalHolidays, getHolidayByDate, isHoliday, formatDateKey } from './calendar/holidays';
