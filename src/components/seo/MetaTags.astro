@@ -1,19 +1,27 @@
 ---
+import { generateBreadcrumbLD, websiteLD } from '@/lib/seo/metadata';
+
 interface Props {
   title: string;
   description: string;
   canonicalPath: string;
   ogImagePath?: string;
   noindex?: boolean;
+  breadcrumbs?: Array<{ name: string; url: string }>;
 }
 
-const { title, description, canonicalPath, ogImagePath, noindex = false } = Astro.props;
+const {
+  title, description, canonicalPath,
+  ogImagePath, noindex = false, breadcrumbs,
+} = Astro.props;
 
 const siteUrl    = 'https://kalenderislam.id';
 const canonical  = `${siteUrl}${canonicalPath}`;
 const ogImage    = ogImagePath
   ? `${siteUrl}${ogImagePath}`
   : `${siteUrl}/og-default.png`;
+
+const breadcrumbLD = breadcrumbs ? generateBreadcrumbLD(breadcrumbs) : null;
 ---
 
 <meta charset="UTF-8" />
@@ -53,3 +61,13 @@ const ogImage    = ogImagePath
 
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+<!-- WebSite schema (homepage only) -->
+{canonicalPath === '/' && (
+  <script type="application/ld+json" set:html={JSON.stringify(websiteLD)} />
+)}
+
+<!-- Breadcrumb schema -->
+{breadcrumbLD && (
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLD)} />
+)}

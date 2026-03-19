@@ -1,9 +1,158 @@
 ---
-export function getStaticPaths() {
-  return Array.from({ length: 9 }, (_, i) => ({
-    params: { tahun: String(2024 + i) },
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { gregorianToJawa, gregorianToHijri } from '@/lib/calendar';
+import { getNationalHolidaysSafe } from '@/lib/data';
+
+export async function getStaticPaths() {
+  return Array.from({ length: 9 }, (_, i) => 2024 + i).map(tahun => ({
+    params: { tahun: String(tahun) },
+    props:  { tahun },
   }));
 }
-const { tahun } = Astro.params;
+
+const { tahun } = Astro.props as { tahun: number };
+const holidays  = await getNationalHolidaysSafe(tahun);
+const holidaySet = new Set(holidays.map(h => h.tanggal));
+
+const BULAN_INDO = [
+  'Januari','Februari','Maret','April','Mei','Juni',
+  'Juli','Agustus','September','Oktober','November','Desember'
+];
+const HARI_INDO = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+const months = BULAN_INDO.map((namaBulan, monthIdx) => {
+  const daysInMonth = new Date(tahun, monthIdx + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => {
+    const date = new Date(tahun, monthIdx, i + 1);
+    const jawa = gregorianToJawa(date);
+    const dateKey = `${tahun}-${String(monthIdx + 1).padStart(2,'0')}-${String(i + 1).padStart(2,'0')}`;
+    return {
+      tanggal:  i + 1,
+      hariSing: HARI_INDO[date.getDay()],
+      jawa,
+      isHoliday: holidaySet.has(dateKey),
+      isFriday:  date.getDay() === 5,
+      dateKey,
+    };
+  });
+  return { namaBulan, days };
+});
+
+const title = `Kalender Jawa ${tahun} Lengkap — Weton, Pasaran & Neptu | KalenderIslam.id`;
+const desc  = `Kalender Jawa ${tahun} lengkap dengan nama hari Jawa, pasaran (Kliwon, Legi, Pahing, Pon, Wage), weton, dan neptu setiap hari.`;
 ---
-<html><body><p>Kalender Jawa {tahun} — placeholder</p></body></html>
+
+<BaseLayout title={title} description={desc} canonicalPath={`/kalender-jawa/${tahun}`}>
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-6 text-[0.78rem]">
+      <a href="/" class="no-underline" style="color:var(--ink-light) !important;">Beranda</a>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="font-medium" style="color:var(--ink);">Kalender Jawa {tahun}</span>
+    </div>
+
+    <h1 class="text-[1.8rem] font-bold mb-2" style="font-family:'Lora',serif; color:var(--ink);">
+      Kalender Jawa {tahun}
+    </h1>
+    <p class="text-[0.9rem] mb-6" style="color:var(--ink-light);">
+      Lengkap dengan hari Jawa, pasaran, weton, dan neptu setiap hari
+    </p>
+
+    <!-- Year nav -->
+    <div class="flex gap-2 mb-8 flex-wrap">
+      {Array.from({ length: 9 }, (_, i) => 2024 + i).map(y => (
+        <a
+          href={`/kalender-jawa/${y}`}
+          class="px-4 py-1.5 rounded-md text-[0.8rem] font-medium no-underline transition-colors duration-150"
+          style={y === tahun
+            ? 'background:var(--green-700); color:white !important;'
+            : 'background:white; color:var(--ink-muted) !important; border:1px solid rgba(29,107,66,.12);'}
+        >
+          {y}
+        </a>
+      ))}
+    </div>
+
+    <!-- Legenda pasaran -->
+    <div class="flex flex-wrap gap-2 mb-8">
+      {[
+        { name:'Kliwon', color:'var(--green-700)' },
+        { name:'Legi',   color:'var(--gold-600)'  },
+        { name:'Pahing', color:'var(--green-600)' },
+        { name:'Pon',    color:'var(--green-800)' },
+        { name:'Wage',   color:'#8B6914'          },
+      ].map(p => (
+        <span class="px-3 py-1 rounded-full text-[0.75rem] font-semibold"
+              style={`background:var(--green-50); color:${p.color}; border:1px solid rgba(29,107,66,.15);`}>
+          {p.name}
+        </span>
+      ))}
+    </div>
+
+    <!-- 12 Bulan -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {months.map(({ namaBulan, days }) => {
+        const todayKey = (() => {
+          const t = new Date();
+          return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+        })();
+
+        return (
+          <div class="rounded-2xl overflow-hidden"
+               style="background:white; border:1px solid rgba(29,107,66,.12);">
+            <div class="px-4 py-3" style="background:var(--green-50); border-bottom:1px solid rgba(29,107,66,.12);">
+              <h2 class="text-[1rem] font-semibold" style="font-family:'Lora',serif; color:var(--ink);">
+                {namaBulan} {tahun}
+              </h2>
+            </div>
+
+            {/* Column headers */}
+            <div class="grid grid-cols-[40px_50px_1fr_60px_50px] gap-2 px-3 pt-3 pb-1 text-[0.65rem] font-semibold uppercase tracking-wider"
+                 style="color:var(--ink-light);">
+              <span>Tgl</span>
+              <span>Hari</span>
+              <span>Pasaran</span>
+              <span>Weton</span>
+              <span class="text-right">Neptu</span>
+            </div>
+
+            <div class="px-3 pb-3">
+              {days.map(day => {
+                const isToday = day.dateKey === todayKey;
+                return (
+                  <div
+                    class={`grid grid-cols-[40px_50px_1fr_60px_50px] gap-2 py-1.5 items-center text-[0.8rem] rounded-lg ${isToday ? 'px-2 -mx-1' : 'px-1'}`}
+                    style={isToday
+                      ? 'background:var(--green-50); border:1px solid rgba(29,107,66,.2);'
+                      : `border-bottom:1px solid rgba(29,107,66,.04);`}
+                  >
+                    <span class="font-semibold"
+                          style={day.isFriday ? 'color:var(--green-700);'
+                            : day.isHoliday ? 'color:var(--gold-600);'
+                            : 'color:var(--ink);'}>
+                      {day.tanggal}
+                      {day.isHoliday && (
+                        <span class="inline-block w-1 h-1 rounded-full ml-0.5 align-middle"
+                              style="background:var(--gold-500);"></span>
+                      )}
+                    </span>
+                    <span style="color:var(--ink-muted);">{day.hariSing}</span>
+                    <span class="font-medium" style="color:var(--green-700);">{day.jawa.pasaran}</span>
+                    <span class="text-[0.75rem]" style="color:var(--ink-light);">
+                      {day.jawa.hariJawa.slice(0,3)} {day.jawa.pasaran.slice(0,3)}
+                    </span>
+                    <span class="text-right font-semibold text-[0.75rem]" style="color:var(--green-600);">
+                      {day.jawa.neptu}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+  </div>
+</BaseLayout>
