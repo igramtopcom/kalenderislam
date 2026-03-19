@@ -8,6 +8,7 @@ import CalendarGrid from '@/components/calendar/CalendarGrid.astro';
 import TodayWidget from '@/components/islands/TodayWidget.tsx';
 import PrayerBar from '@/components/islands/PrayerBar.tsx';
 import FaqAccordion from '@/components/islands/FaqAccordion.tsx';
+import SholatHomepage from '@/components/islands/SholatHomepage.tsx';
 
 // ── Tanggal hari ini (server-side) ───────────────────────────────────────────
 const today       = new Date();
@@ -71,6 +72,7 @@ const sholatToday   = getSholatTimesFormatted(
   defaultKota.lat, defaultKota.lng, today, defaultKota.timezone
 );
 const tzLabelSholat = getTimezoneLabel(defaultKota.timezone);
+const tanggalStr    = `${hariIni}, ${tanggal} ${bulan} ${currentYear}`;
 
 const speakableJsonLd = {
   '@context': 'https://schema.org',
@@ -327,70 +329,26 @@ const faqJsonLd = {
 
   <!-- JADWAL SHOLAT HARI INI -->
   <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] mb-10">
-    <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
-      <div>
-        <h2
-          class="font-serif text-[1.4rem] font-semibold"
-          style="font-family:'Lora',serif; color:var(--ink);"
-        >
-          Jadwal Sholat Hari Ini
-        </h2>
-        <p class="text-[0.82rem] mt-0.5" style="color:var(--ink-light);">
-          Jakarta — {hariIni}, {tanggal} {bulan} {tahun} ·
-          <a href="/sholat/jakarta" style="color:var(--green-600);" class="no-underline">
-            Ganti kota →
-          </a>
-        </p>
-      </div>
-      <a
-        href="/sholat/jakarta"
-        class="text-[0.8rem] font-medium no-underline px-4 py-2 rounded-lg
-               transition-colors duration-150"
-        style="background:var(--green-50); color:var(--green-700);
-               border:1px solid rgba(29,107,66,.15);"
-      >
-        Lihat jadwal lengkap →
-      </a>
-    </div>
-
-    <div class="sholat-grid grid grid-cols-2 sm:grid-cols-5 gap-3">
-      {[
-        { nama: 'Subuh',   waktu: sholatToday.fajr    },
-        { nama: 'Dzuhur',  waktu: sholatToday.dhuhr   },
-        { nama: 'Ashar',   waktu: sholatToday.asr     },
-        { nama: 'Maghrib', waktu: sholatToday.maghrib },
-        { nama: 'Isya',    waktu: sholatToday.isha    },
-      ].map(s => (
-        <div
-          class="rounded-2xl p-4 text-center"
-          style="background:white; border:1px solid rgba(29,107,66,.12);"
-        >
-          <p class="text-[0.72rem] font-semibold uppercase tracking-wider mb-2"
-             style="color:var(--ink-light);">{s.nama}</p>
-          <p class="font-serif text-[1.2rem] font-bold tabular-nums"
-             style="font-family:'Lora',serif; color:var(--ink);">{s.waktu}</p>
-          <p class="text-[0.65rem] mt-1" style="color:var(--ink-light);">{tzLabelSholat}</p>
-        </div>
-      ))}
-    </div>
-
-    <p class="text-[0.75rem] mt-3 text-center" style="color:var(--ink-light);">
-      Berdasarkan metode <strong style="color:var(--ink);">Kemenag RI</strong>
-      (Fajr 20°, Isha 18°, Mazhab Syafi'i) ·
-      <a href="/sholat/jakarta" style="color:var(--green-600);" class="no-underline">
-        Lihat jadwal kota lain
-      </a>
-    </p>
-
-    <!-- Hidden SSR text untuk Googlebot -->
+    <!-- SSR hidden text untuk Googlebot -->
     <div style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
       <p>
-        Jadwal sholat Jakarta hari ini {hariIni} {tanggal} {bulan} {tahun}:
+        Jadwal sholat Jakarta hari ini {hariIni} {tanggal} {bulan} {currentYear}:
         Subuh {sholatToday.fajr}, Dzuhur {sholatToday.dhuhr},
         Ashar {sholatToday.asr}, Maghrib {sholatToday.maghrib},
         Isya {sholatToday.isha} {tzLabelSholat}.
       </p>
     </div>
+
+    <!-- Interactive Island with Ganti Kota -->
+    <SholatHomepage
+      ssrFajr={sholatToday.fajr}
+      ssrDhuhr={sholatToday.dhuhr}
+      ssrAsr={sholatToday.asr}
+      ssrMaghrib={sholatToday.maghrib}
+      ssrIsha={sholatToday.isha}
+      tanggalStr={tanggalStr}
+      client:visible
+    />
   </section>
 
   <!-- BULAN HIJRI SAAT INI -->
