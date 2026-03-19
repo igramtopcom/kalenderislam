@@ -1,3 +1,59 @@
 ---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import DateConverter from '@/components/islands/DateConverter.tsx';
+
+const title = 'Konverter Tanggal Hijriah, Masehi & Jawa | KalenderIslam.id';
+const desc = 'Konversi tanggal Masehi ke Hijriah dan Jawa secara instan. Cari tahu weton, neptu, dan pasaran untuk tanggal lahir atau tanggal penting Anda.';
 ---
-<html><body><p>Konversi Kalender — placeholder</p></body></html>
+
+<BaseLayout title={title} description={desc} canonicalPath="/konversi">
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-6">
+      <a href="/" class="text-[0.78rem] no-underline" style="color:var(--ink-light) !important;">Beranda</a>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="text-[0.78rem] font-medium" style="color:var(--ink);">Konversi Tanggal</span>
+    </div>
+
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-[2rem] font-bold mb-3"
+          style="font-family:'Lora',serif; color:var(--ink);">
+        Konverter Tanggal
+      </h1>
+      <p class="text-[1rem] max-w-lg mx-auto" style="color:var(--ink-light);">
+        Konversi tanggal Masehi ke Hijriah dan Kalender Jawa secara instan.
+        Cari tahu weton dan neptu untuk tanggal apapun.
+      </p>
+    </div>
+
+    <!-- Island -->
+    <DateConverter client:load />
+
+    <!-- SEO content -->
+    <div class="mt-12 max-w-2xl mx-auto">
+      <h2 class="text-[1.2rem] font-semibold mb-4"
+          style="font-family:'Lora',serif; color:var(--ink);">
+        Tentang Konverter Ini
+      </h2>
+      <div class="space-y-3 text-[0.88rem] leading-relaxed" style="color:var(--ink-light);">
+        <p>
+          Konverter ini menggunakan algoritma <strong style="color:var(--ink);">Umm al-Qura</strong>
+          yang dikombinasikan dengan data resmi Kemenag RI untuk akurasi maksimal
+          pada rentang tahun 2024–2032.
+        </p>
+        <p>
+          Kalender Jawa menggunakan sistem <strong style="color:var(--ink);">pasaran 5 hari</strong>
+          (Kliwon, Legi, Pahing, Pon, Wage) yang berjalan paralel dengan minggu 7 hari,
+          menghasilkan siklus weton 35 hari yang unik.
+        </p>
+        <p>
+          Untuk tanggal di luar 2024–2032, konversi menggunakan algoritma tabular
+          dengan akurasi ±1 hari.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</BaseLayout>
