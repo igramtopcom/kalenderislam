@@ -1,9 +1,78 @@
 ---
-export function getStaticPaths() {
-  return Array.from({ length: 9 }, (_, i) => ({
-    params: { tahun: String(2024 + i) },
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CalendarGrid from '@/components/calendar/CalendarGrid.astro';
+import { getKemenagOfficialDates, getNationalHolidaysSafe } from '@/lib/data';
+
+export async function getStaticPaths() {
+  return Array.from({ length: 9 }, (_, i) => 2024 + i).map(tahun => ({
+    params: { tahun: String(tahun) },
+    props:  { tahun },
   }));
 }
-const { tahun } = Astro.params;
+
+const { tahun } = Astro.props as { tahun: number };
+
+const [officialDates, holidays] = await Promise.all([
+  getKemenagOfficialDates(tahun),
+  getNationalHolidaysSafe(tahun),
+]);
+
+const title = `Kalender Islam ${tahun} Lengkap — Hijriah, Masehi & Jawa | KalenderIslam.id`;
+const desc  = `Kalender Islam ${tahun} resmi dari Kemenag RI. Lengkap dengan penanggalan Hijriah, Jawa, hari libur nasional, dan jadwal sholat.`;
 ---
-<html><body><p>Kalender {tahun} — placeholder</p></body></html>
+
+<BaseLayout
+  title={title}
+  description={desc}
+  canonicalPath={`/kalender/${tahun}`}
+>
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-1">
+      <a href="/" class="text-[0.78rem] no-underline" style="color:var(--ink-light) !important;">Beranda</a>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="text-[0.78rem]" style="color:var(--ink-light);">Kalender</span>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="text-[0.78rem] font-medium" style="color:var(--ink);">{tahun}</span>
+    </div>
+
+    <!-- Page Header -->
+    <h1 class="text-[1.8rem] font-bold mb-1"
+        style="font-family:'Lora',serif; color:var(--ink);">
+      Kalender Islam {tahun}
+    </h1>
+    <p class="text-[0.9rem] mb-6" style="color:var(--ink-light);">
+      Lengkap dengan penanggalan Hijriah, Masehi, dan Jawa — akurat sesuai Kemenag RI
+    </p>
+
+    <!-- Year Navigation -->
+    <div class="flex items-center gap-2 mb-8 flex-wrap">
+      {Array.from({ length: 9 }, (_, i) => 2024 + i).map(y => (
+        <a
+          href={`/kalender/${y}`}
+          class="px-4 py-1.5 rounded-md text-[0.8rem] font-medium transition-colors duration-150 no-underline"
+          style={y === tahun
+            ? 'background:var(--green-700); color:white !important;'
+            : 'background:white; color:var(--ink-muted) !important; border:1px solid rgba(29,107,66,.12);'}
+        >
+          {y}
+        </a>
+      ))}
+    </div>
+
+    <!-- 12 Bulan Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {Array.from({ length: 12 }, (_, m) => (
+        <CalendarGrid
+          year={tahun}
+          month={m}
+          holidays={holidays}
+          officialDates={officialDates}
+          showNav={false}
+        />
+      ))}
+    </div>
+
+  </div>
+</BaseLayout>
