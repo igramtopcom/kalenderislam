@@ -26,6 +26,15 @@ export interface Provinsi {
   kota_utama: string[];
 }
 
+export type HijriSource = 'kemenag_official' | 'umm_alqura_projection';
+
+export interface HijriMonthEntry {
+  hijriYear: number;
+  hijriMonth: number;   // 1–12
+  gregorianStart: string; // format: 'YYYY-MM-DD'
+  source: HijriSource;
+}
+
 export interface PrayerMethod {
   id: string;
   nama: string;
