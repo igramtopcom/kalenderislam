@@ -1,3 +1,96 @@
 ---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import WetonCalculator from '@/components/islands/WetonCalculator.tsx';
+
+const title = 'Kalkulator Weton Jawa — Cari Weton & Neptu Tanggal Lahir | KalenderIslam.id';
+const desc  = 'Hitung weton Jawa dari tanggal lahir. Temukan hari pasaran, neptu, dan maknanya. Kalkulator weton online terpercaya untuk pengguna kalender Jawa.';
 ---
-<html><body><p>Kalkulator Weton — placeholder</p></body></html>
+
+<BaseLayout title={title} description={desc} canonicalPath="/weton">
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-6">
+      <a href="/" class="text-[0.78rem] no-underline" style="color:var(--ink-light) !important;">Beranda</a>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="text-[0.78rem] font-medium" style="color:var(--ink);">Kalkulator Weton</span>
+    </div>
+
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-[2rem] font-bold mb-3"
+          style="font-family:'Lora',serif; color:var(--ink);">
+        Kalkulator Weton Jawa
+      </h1>
+      <p class="text-[1rem] max-w-lg mx-auto" style="color:var(--ink-light);">
+        Masukkan tanggal lahir untuk mengetahui weton, neptu, dan maknanya
+        dalam tradisi Jawa.
+      </p>
+    </div>
+
+    <!-- Island -->
+    <WetonCalculator client:load />
+
+    <!-- SEO content -->
+    <div class="mt-12 max-w-xl mx-auto space-y-6">
+      <h2 class="text-[1.2rem] font-semibold"
+          style="font-family:'Lora',serif; color:var(--ink);">
+        Apa itu Weton?
+      </h2>
+      <div class="space-y-3 text-[0.88rem] leading-relaxed" style="color:var(--ink-light);">
+        <p>
+          <strong style="color:var(--ink);">Weton</strong> adalah sistem penanggalan Jawa yang
+          menggabungkan hari dalam seminggu (7 hari) dengan hari pasaran (5 hari: Kliwon, Legi,
+          Pahing, Pon, Wage), menghasilkan siklus 35 hari yang unik.
+        </p>
+        <p>
+          <strong style="color:var(--ink);">Neptu</strong> adalah nilai numerologis weton —
+          jumlah nilai hari ditambah nilai pasaran. Digunakan dalam berbagai perhitungan
+          tradisional Jawa seperti menentukan hari baik pernikahan.
+        </p>
+
+        <!-- Tabel nilai neptu -->
+        <div class="rounded-xl overflow-hidden mt-4"
+             style="border:1px solid rgba(29,107,66,.12);">
+          <div class="grid grid-cols-2" style="border-bottom:1px solid rgba(29,107,66,.12);">
+            <div class="p-3" style="border-right:1px solid rgba(29,107,66,.12);">
+              <p class="text-[0.72rem] font-semibold uppercase tracking-wider mb-2"
+                 style="color:var(--green-600);">Nilai Hari</p>
+              {[
+                ['Ahad (Minggu)',  5],
+                ['Senen (Senin)',  4],
+                ['Selasa',         3],
+                ['Rebo (Rabu)',    7],
+                ['Kemis (Kamis)', 8],
+                ['Jumah (Jumat)', 6],
+                ['Setu (Sabtu)',  9],
+              ].map(([h, n]) => (
+                <div class="flex justify-between py-1 text-[0.8rem]">
+                  <span style="color:var(--ink);">{h}</span>
+                  <span class="font-semibold" style="color:var(--green-700);">{n}</span>
+                </div>
+              ))}
+            </div>
+            <div class="p-3">
+              <p class="text-[0.72rem] font-semibold uppercase tracking-wider mb-2"
+                 style="color:var(--green-600);">Nilai Pasaran</p>
+              {[
+                ['Kliwon', 8],
+                ['Legi',   5],
+                ['Pahing', 9],
+                ['Pon',    7],
+                ['Wage',   4],
+              ].map(([p, n]) => (
+                <div class="flex justify-between py-1 text-[0.8rem]">
+                  <span style="color:var(--ink);">{p}</span>
+                  <span class="font-semibold" style="color:var(--green-700);">{n}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</BaseLayout>
