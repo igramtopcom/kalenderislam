@@ -94,9 +94,9 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
           </svg>
         </div>
 
-        <div class="relative z-10 flex flex-col h-full">
+        <div class="relative z-10 flex flex-col justify-between h-full">
           <!-- Bismillah -->
-          <div class="text-center mb-4 text-[1.6rem]"
+          <div class="text-center mb-3 text-[1.6rem]"
                style="color: rgba(226,188,69,.7); font-family: 'Amiri', serif;">
             بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
           </div>
@@ -111,11 +111,11 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
           <TodayWidget client:load />
 
           <!-- Divider -->
-          <div style="height:1px; background:rgba(255,255,255,.1); margin: 0.75rem 0;"></div>
+          <div style="height:1px; background:rgba(255,255,255,.1); margin: 0.5rem 0;"></div>
 
-          <!-- Upcoming events — fill remaining space -->
-          <div class="flex flex-col gap-2.5 mt-auto">
-            {upcomingEvents.slice(0, 3).map(event => {
+          <!-- Upcoming events — max 2 to balance with Calendar -->
+          <div class="flex flex-col gap-2">
+            {upcomingEvents.slice(0, 2).map(event => {
               const hb = hariBesarList.find(h => h.event_id === event.event);
               if (!event.bestDate || !hb) return null;
 
@@ -129,13 +129,13 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
               return (
                 <a
                   href={`/hari-besar/${hb.slug}/${eventDate.getFullYear()}`}
-                  class="flex items-center gap-3 rounded-xl p-3 no-underline
+                  class="flex items-center gap-3 rounded-lg px-3 py-2.5 no-underline
                          transition-colors duration-150 group"
                   style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09);"
                 >
                   {/* Countdown box */}
                   <div
-                    class="min-w-[48px] h-[48px] rounded-lg flex flex-col items-center
+                    class="min-w-[42px] h-[42px] rounded-lg flex flex-col items-center
                            justify-center flex-shrink-0 text-center"
                     style="background:rgba(255,255,255,.08);"
                   >
