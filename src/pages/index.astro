@@ -71,6 +71,34 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
     </div>
   </div>
 
+  <!-- TRUST BAR -->
+  <div
+    style="background:var(--green-50); border-bottom:1px solid rgba(29,107,66,.12);"
+    class="py-2 px-[clamp(1rem,4vw,3rem)]"
+  >
+    <div
+      class="max-w-site mx-auto flex items-center justify-center gap-6 flex-wrap"
+      style="color:var(--ink-light); font-size:0.75rem;"
+    >
+      {[
+        { icon: '📅', text: '1.100+ Halaman Kalender' },
+        { icon: '📍', text: '100+ Kota Indonesia' },
+        { icon: '✅', text: 'Data Kemenag RI' },
+        { icon: '🔄', text: 'Diperbarui Otomatis' },
+      ].map((item, i) => (
+        <>
+          <span class="flex items-center gap-1.5 whitespace-nowrap">
+            <span>{item.icon}</span>
+            <span>{item.text}</span>
+          </span>
+          {i < 3 && (
+            <span style="color:rgba(29,107,66,.25);">·</span>
+          )}
+        </>
+      ))}
+    </div>
+  </div>
+
   <!-- HERO SECTION — 2 Column Layout (stretch) -->
   <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)]"
            style="padding-top: clamp(2rem,5vw,4rem); padding-bottom: 2.5rem;">
@@ -339,5 +367,41 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
       </div>
     </section>
   )}
+
+  <!-- TENTANG KALENDERISLAM.ID -->
+  <section
+    class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-10"
+    style="border-top:1px solid rgba(29,107,66,.1);"
+  >
+    <div class="max-w-3xl">
+      <h2
+        class="font-serif text-[1.2rem] font-semibold mb-4"
+        style="font-family:'Lora',serif; color:var(--ink);"
+      >
+        Tentang KalenderIslam.id
+      </h2>
+      <div
+        class="space-y-3 text-[0.9rem] leading-relaxed"
+        style="color:var(--ink-light);"
+      >
+        <p>
+          KalenderIslam.id adalah referensi kalender Islam terlengkap untuk Muslim Indonesia.
+          Kami menyajikan Kalender Hijriah, Masehi, dan Jawa dalam satu tampilan —
+          satu-satunya platform yang menggabungkan ketiga sistem penanggalan yang digunakan
+          sehari-hari oleh masyarakat Indonesia.
+        </p>
+        <p>
+          Seluruh data kalender dihitung menggunakan algoritma yang diverifikasi berdasarkan
+          data resmi Kementerian Agama Republik Indonesia (Kemenag RI). Tanggal hari besar
+          Islam seperti Ramadan, Idul Fitri, dan Idul Adha diperbarui otomatis setelah
+          hasil sidang isbat diumumkan.
+        </p>
+        <p>
+          Tersedia untuk 100+ kota di Indonesia dengan jadwal sholat, imsakiyah Ramadan,
+          kalkulator weton, dan konverter tanggal tiga sistem sekaligus.
+        </p>
+      </div>
+    </div>
+  </section>
 
 </BaseLayout>
