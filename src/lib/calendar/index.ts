@@ -117,3 +117,19 @@ function fmtDateKey(date: Date): string {
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+
+// ─── Ramadan Helpers ─────────────────────────────────────────────────────────
+
+export function calcRamadanEndDate(startDateStr: string, totalDays: number = 30): string {
+  const start = new Date(startDateStr + 'T12:00:00');
+  const end   = new Date(start);
+  end.setDate(end.getDate() + totalDays - 1);
+  return end.toISOString().split('T')[0];
+}
+
+export function calcIdulFitriDate(startDateStr: string, totalDays: number = 30): string {
+  const start = new Date(startDateStr + 'T12:00:00');
+  const idul  = new Date(start);
+  idul.setDate(idul.getDate() + totalDays);
+  return idul.toISOString().split('T')[0];
+}

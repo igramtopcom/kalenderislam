@@ -1,9 +1,260 @@
 ---
-export function getStaticPaths() {
-  return Array.from({ length: 9 }, (_, i) => ({
-    params: { tahun: String(2025 + i) },
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JsonLD from '@/components/seo/JsonLD.astro';
+import Countdown from '@/components/islands/Countdown.tsx';
+import { getOfficialDateByEvent, getAllKota } from '@/lib/data';
+import { calcRamadanEndDate, calcIdulFitriDate, gregorianToHijri } from '@/lib/calendar';
+
+export async function getStaticPaths() {
+  return [2025, 2026, 2027, 2028].map(tahun => ({
+    params: { tahun: String(tahun) },
+    props:  { tahun },
   }));
 }
-const { tahun } = Astro.params;
+
+const { tahun } = Astro.props as { tahun: number };
+
+const [ramadanData, idulFitriData] = await Promise.all([
+  getOfficialDateByEvent('ramadan_start', tahun),
+  getOfficialDateByEvent('idul_fitri', tahun),
+]);
+
+const ramadanStart  = ramadanData?.bestDate ?? null;
+const ramadanEnd    = ramadanStart ? calcRamadanEndDate(ramadanStart, 30) : null;
+const idulFitriDate = idulFitriData?.bestDate ?? (ramadanStart ? calcIdulFitriDate(ramadanStart, 30) : null);
+const isConfirmed   = ramadanData?.isConfirmed ?? false;
+
+const today = new Date();
+let hariKeRamadan: number | null = null;
+if (ramadanStart && ramadanEnd) {
+  const start = new Date(ramadanStart + 'T00:00:00');
+  const end   = new Date(ramadanEnd   + 'T23:59:59');
+  if (today >= start && today <= end) {
+    hariKeRamadan = Math.ceil((today.getTime() - start.getTime()) / 86_400_000) + 1;
+  }
+}
+
+const BULAN_INDO = [
+  'Januari','Februari','Maret','April','Mei','Juni',
+  'Juli','Agustus','September','Oktober','November','Desember'
+];
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return 'Menunggu pengumuman';
+  const d = new Date(dateStr + 'T12:00:00');
+  return `${d.getDate()} ${BULAN_INDO[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+const hijriYear = ramadanStart
+  ? gregorianToHijri(new Date(ramadanStart + 'T12:00:00')).year
+  : tahun + 578;
+
+const allKota = getAllKota();
+const kotaPopuler = [
+  'jakarta','surabaya','bandung','medan','semarang',
+  'yogyakarta','makassar','palembang','denpasar','malang',
+  'pekanbaru','balikpapan','manado','padang','solo',
+].map(slug => allKota.find(k => k.slug === slug)).filter(Boolean);
+
+const title = `Jadwal Ramadan ${tahun} — Imsakiyah & Waktu Imsak | KalenderIslam.id`;
+const desc  = `Jadwal Ramadan ${tahun} (${hijriYear} H) lengkap. Waktu imsak, sahur, subuh, dan buka puasa untuk 100+ kota Indonesia. Akurat sesuai Kemenag RI.`;
+
+const jsonLdEvent = ramadanStart ? {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: `Ramadan ${tahun} / ${hijriYear} H`,
+  startDate: ramadanStart,
+  endDate: ramadanEnd ?? ramadanStart,
+  description: `Bulan Ramadan ${hijriYear} H — bulan puasa wajib bagi seluruh umat Islam.`,
+  location: {
+    '@type': 'Place',
+    name: 'Indonesia',
+    address: { '@type': 'PostalAddress', addressCountry: 'ID' },
+  },
+} : null;
 ---
-<html><body><p>Ramadan {tahun} — placeholder</p></body></html>
+
+<BaseLayout title={title} description={desc} canonicalPath={`/ramadan/${tahun}`}>
+  {jsonLdEvent && <JsonLD schema={jsonLdEvent} />}
+
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-6 text-[0.78rem]">
+      <a href="/" class="no-underline" style="color:var(--ink-light) !important;">Beranda</a>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="font-medium" style="color:var(--ink);">Ramadan {tahun}</span>
+    </div>
+
+    <!-- Hero Banner -->
+    <div
+      class="rounded-3xl relative overflow-hidden mb-8"
+      style="background:linear-gradient(135deg, var(--green-800) 0%, var(--green-900) 100%);
+             padding:clamp(1.5rem,4vw,2.5rem);"
+    >
+      <div class="absolute right-[-10px] top-[-10px] opacity-5 pointer-events-none" aria-hidden="true">
+        <svg width="220" height="220" viewBox="0 0 200 200">
+          <path d="M100 10 C55 10 20 45 20 90 C20 135 55 170 100 170 C80 150 68 122 68 90 C68 58 80 30 100 10Z" fill="white"/>
+          <circle cx="130" cy="50" r="8" fill="white" opacity=".6"/>
+          <circle cx="150" cy="80" r="5" fill="white" opacity=".4"/>
+        </svg>
+      </div>
+
+      <div class="relative z-10">
+        <p class="text-center text-[2rem] mb-3"
+           style="font-family:'Amiri',serif; color:rgba(226,188,69,.8);">
+          رَمَضَان
+        </p>
+
+        <!-- Status badge -->
+        <div class="flex justify-center mb-4">
+          {hariKeRamadan ? (
+            <span class="px-4 py-1.5 rounded-full text-[0.8rem] font-semibold"
+                  style="background:rgba(46,201,143,.25); color:var(--green-400);
+                         border:1px solid rgba(46,201,143,.4);">
+              Hari ke-{hariKeRamadan} Ramadan {tahun}
+            </span>
+          ) : isConfirmed ? (
+            <span class="px-3 py-1 rounded-full text-[0.75rem] font-semibold"
+                  style="background:rgba(46,201,143,.2); color:var(--green-400);
+                         border:1px solid rgba(46,201,143,.3);">
+              Tanggal Resmi Kemenag
+            </span>
+          ) : (
+            <span class="px-3 py-1 rounded-full text-[0.75rem] font-semibold"
+                  style="background:rgba(254,243,199,.15); color:#FEF3C7;
+                         border:1px solid rgba(254,243,199,.3);">
+              Menunggu Sidang Isbat
+            </span>
+          )}
+        </div>
+
+        <h1 class="text-center text-white mb-1"
+            style="font-family:'Lora',serif; font-size:clamp(1.6rem,3vw,2.2rem); font-weight:700;">
+          Ramadan {tahun} / {hijriYear} H
+        </h1>
+        <p class="text-center text-[1rem] mb-6" style="color:var(--green-200);">
+          {formatDate(ramadanStart)} — {formatDate(ramadanEnd)}
+        </p>
+
+        <!-- Countdown or progress -->
+        {ramadanStart && !hariKeRamadan && new Date(ramadanStart) > today && (
+          <div class="flex flex-col items-center gap-3">
+            <p class="text-[0.72rem] font-semibold uppercase tracking-widest"
+               style="color:var(--green-200); opacity:.7;">Menuju Ramadan {tahun}</p>
+            <Countdown targetDate={ramadanStart} eventName={`Ramadan ${tahun}`} client:visible />
+          </div>
+        )}
+
+        {hariKeRamadan && (
+          <div class="max-w-sm mx-auto">
+            <div class="flex justify-between text-[0.72rem] mb-1.5" style="color:var(--green-200);">
+              <span>Hari ke-{hariKeRamadan}</span>
+              <span>30 hari</span>
+            </div>
+            <div class="h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,.15);">
+              <div class="h-full rounded-full transition-all duration-500"
+                   style={`width:${(hariKeRamadan/30)*100}%; background:linear-gradient(90deg, var(--green-400), var(--gold-400));`}></div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      {[
+        { label: '1 Ramadan', value: formatDate(ramadanStart), sub: isConfirmed ? 'Resmi Kemenag' : 'Perkiraan', icon: '🌙', isGold: false },
+        { label: 'Idul Fitri', value: formatDate(idulFitriDate), sub: idulFitriData?.isConfirmed ? 'Resmi Kemenag' : 'Perkiraan', icon: '🎉', isGold: true },
+        { label: 'Durasi Puasa', value: '30 hari', sub: 'Menunggu konfirmasi', icon: '📅', isGold: false },
+      ].map(info => (
+        <div class="rounded-2xl p-5"
+             style={info.isGold
+               ? 'background:var(--gold-100); border:1px solid rgba(201,162,39,.3);'
+               : 'background:white; border:1px solid rgba(29,107,66,.12);'}>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xl">{info.icon}</span>
+            <p class="text-[0.75rem] font-semibold uppercase tracking-wider"
+               style={info.isGold ? 'color:var(--gold-600);' : 'color:var(--ink-light);'}>{info.label}</p>
+          </div>
+          <p class="text-[1.1rem] font-semibold"
+             style={`font-family:'Lora',serif; color:${info.isGold ? 'var(--gold-600)' : 'var(--ink)'};`}>{info.value}</p>
+          <p class="text-[0.72rem] mt-1"
+             style={info.isGold ? 'color:var(--gold-600); opacity:.7;' : 'color:var(--ink-light);'}>{info.sub}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Kemenag vs Muhammadiyah -->
+    <div class="rounded-2xl p-5 mb-8" style="background:white; border:1px solid rgba(29,107,66,.12);">
+      <h2 class="text-[1.1rem] font-semibold mb-4" style="font-family:'Lora',serif; color:var(--ink);">
+        Perbandingan Penetapan
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="rounded-xl p-4" style="background:var(--green-50);">
+          <p class="text-[0.72rem] font-semibold uppercase tracking-wider mb-2" style="color:var(--green-600);">
+            Kemenag RI (Rukyat Hilal)
+          </p>
+          <p class="font-semibold" style="color:var(--ink);">
+            {ramadanData?.tanggal_resmi ? formatDate(ramadanData.tanggal_resmi) : '— Menunggu sidang isbat'}
+          </p>
+        </div>
+        <div class="rounded-xl p-4" style="background:var(--green-50);">
+          <p class="text-[0.72rem] font-semibold uppercase tracking-wider mb-2" style="color:var(--ink-muted);">
+            Muhammadiyah (Hisab)
+          </p>
+          <p class="font-semibold" style="color:var(--ink);">
+            {ramadanData?.tanggal_muhammadiyah ? formatDate(ramadanData.tanggal_muhammadiyah) : '— Belum tersedia'}
+          </p>
+        </div>
+      </div>
+      <p class="text-[0.75rem] mt-3" style="color:var(--ink-light);">
+        Perbedaan penetapan adalah hal yang biasa dalam tradisi Islam Indonesia.
+        Ikuti keputusan ormas atau pemerintah sesuai keyakinan masing-masing.
+      </p>
+    </div>
+
+    <!-- Pilih Kota Imsakiyah -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-[1.2rem] font-semibold" style="font-family:'Lora',serif; color:var(--ink);">
+          Imsakiyah per Kota
+        </h2>
+        <span class="text-[0.78rem]" style="color:var(--ink-light);">100+ kota tersedia</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-4">
+        {kotaPopuler.map(kota => kota && (
+          <a
+            href={`/ramadan/${tahun}/${kota.slug}`}
+            class="flex items-center justify-between px-3 py-2.5 rounded-xl no-underline transition-all duration-150 group"
+            style="background:white; border:1px solid rgba(29,107,66,.12); color:var(--ink) !important;"
+          >
+            <span class="text-[0.82rem] font-medium">{kota.name}</span>
+            <span class="text-[0.72rem] opacity-0 group-hover:opacity-100 transition-opacity"
+                  style="color:var(--green-500);">→</span>
+          </a>
+        ))}
+      </div>
+
+      <a href={`/ramadan/${tahun}/jakarta`}
+         class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[0.85rem] font-semibold no-underline transition-colors duration-150"
+         style="background:var(--green-700); color:white !important;">
+        Lihat Imsakiyah Jakarta →
+      </a>
+    </div>
+
+    <!-- Year nav -->
+    <div class="flex gap-2 flex-wrap">
+      {[2025, 2026, 2027, 2028].map(y => (
+        <a href={`/ramadan/${y}`}
+           class="px-4 py-1.5 rounded-md text-[0.8rem] font-medium no-underline transition-colors duration-150"
+           style={y === tahun
+             ? 'background:var(--green-700); color:white !important;'
+             : 'background:white; color:var(--ink-muted) !important; border:1px solid rgba(29,107,66,.12);'}>
+          Ramadan {y}
+        </a>
+      ))}
+    </div>
+
+  </div>
+</BaseLayout>
