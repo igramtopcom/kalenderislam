@@ -1,0 +1,202 @@
+---
+import { getAllKota, getKotaBySlug, getOfficialDateByEvent } from '@/lib/data';
+import { getSholatTimesFormatted, getTimezoneLabel, gregorianToHijri } from '@/lib/calendar';
+
+export async function getStaticPaths() {
+  const allKota    = getAllKota();
+  const tahunRange = [2025, 2026, 2027, 2028];
+
+  return tahunRange.flatMap(tahun =>
+    allKota.map(kota => ({
+      params: { tahun: String(tahun), kota: kota.slug },
+      props:  { tahun, kotaSlug: kota.slug },
+    }))
+  );
+}
+
+const { tahun, kotaSlug } = Astro.props as { tahun: number; kotaSlug: string };
+
+const kota = getKotaBySlug(kotaSlug);
+if (!kota) return Astro.redirect(`/ramadan/${tahun}`);
+
+const ramadanData  = await getOfficialDateByEvent('ramadan_start', tahun);
+const ramadanStart = ramadanData?.bestDate;
+if (!ramadanStart) return Astro.redirect(`/ramadan/${tahun}`);
+
+const HARI_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const BULAN_INDO = [
+  'Januari','Februari','Maret','April','Mei','Juni',
+  'Juli','Agustus','September','Oktober','November','Desember'
+];
+
+const rows = Array.from({ length: 30 }, (_, i) => {
+  const date = new Date(ramadanStart + 'T12:00:00');
+  date.setDate(date.getDate() + i);
+  const times = getSholatTimesFormatted(kota.lat, kota.lng, date, kota.timezone);
+  const hijri = gregorianToHijri(date);
+  return {
+    no: i + 1,
+    hari: HARI_SHORT[date.getDay()],
+    tanggal: `${date.getDate()} ${BULAN_INDO[date.getMonth()]}`,
+    hijri: `${hijri.day} ${hijri.monthNameShort}`,
+    imsak: times.imsak, subuh: times.fajr, dzuhur: times.dhuhr,
+    ashar: times.asr, maghrib: times.maghrib, isya: times.isha,
+    isFriday: date.getDay() === 5,
+  };
+});
+
+const tzLabel     = getTimezoneLabel(kota.timezone);
+const isConfirmed = ramadanData?.isConfirmed ?? false;
+const hijriStart  = gregorianToHijri(new Date(ramadanStart + 'T12:00:00'));
+---
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Imsakiyah Ramadan {tahun} — {kota.name} | KalenderIslam.id</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-900:#062917; --green-800:#0D3D22; --green-700:#155232;
+      --green-500:#1D9E75; --green-200:#9FE1CB; --green-50:#F0FAF5;
+      --gold-400:#E2BC45; --ink:#141C14; --ink-light:#6B7A6B;
+    }
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:white; color:var(--ink); font-size:11pt; }
+    .page { width:210mm; min-height:297mm; margin:0 auto; padding:12mm 14mm 10mm; background:white; }
+    .header { display:flex; align-items:center; justify-content:space-between; padding-bottom:8px; margin-bottom:12px; border-bottom:2px solid var(--green-700); }
+    .logo { font-family:'Lora',serif; font-size:11pt; font-weight:600; color:var(--green-800); }
+    .logo span { color:var(--green-500); }
+    .header-title { text-align:center; }
+    .arabic-title { font-family:'Amiri',serif; font-size:20pt; color:var(--green-700); display:block; line-height:1.2; }
+    .title-main { font-family:'Lora',serif; font-size:14pt; font-weight:700; color:var(--green-800); }
+    .title-sub { font-size:10pt; color:var(--ink-light); margin-top:2px; }
+    .header-right { text-align:right; font-size:9pt; color:var(--ink-light); line-height:1.6; }
+    .info-bar { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:12px; }
+    .info-item { background:var(--green-50); border:1px solid rgba(29,107,66,.15); border-radius:6px; padding:5px 8px; text-align:center; }
+    .info-label { font-size:7pt; color:var(--ink-light); text-transform:uppercase; letter-spacing:.05em; display:block; }
+    .info-value { font-size:9pt; font-weight:600; color:var(--green-700); }
+    table { width:100%; border-collapse:collapse; font-size:9pt; }
+    thead tr { background:var(--green-800); color:white; }
+    thead th { padding:6px 5px; text-align:center; font-size:8pt; font-weight:600; letter-spacing:.04em; border-right:1px solid rgba(255,255,255,.15); }
+    thead th:last-child { border-right:none; }
+    tbody tr { border-bottom:1px solid rgba(29,107,66,.08); }
+    tbody tr:nth-child(even) { background:#f8fdf9; }
+    tbody tr.friday { background:var(--green-50); font-weight:600; }
+    tbody td { padding:5px 5px; text-align:center; border-right:1px solid rgba(29,107,66,.06); vertical-align:middle; }
+    tbody td:last-child { border-right:none; }
+    .td-no { font-weight:600; color:var(--green-700); width:22px; }
+    .td-tanggal { text-align:left; padding-left:6px; width:70px; }
+    .td-hari { color:var(--ink-light); width:26px; font-size:8pt; }
+    .td-hijri { font-size:8pt; color:var(--ink-light); width:45px; }
+    .td-maghrib { font-weight:700; color:var(--green-700); }
+    .td-imsak { color:var(--ink-light); }
+    .footer { margin-top:10px; padding-top:8px; border-top:1px solid rgba(29,107,66,.2); display:flex; align-items:center; justify-content:space-between; font-size:7.5pt; color:var(--ink-light); }
+    .disclaimer { font-size:7pt; color:var(--ink-light); line-height:1.4; margin-top:4px; }
+    @media print {
+      body { margin:0; }
+      .page { width:100%; padding:10mm 12mm 8mm; min-height:0; }
+      .no-print { display:none !important; }
+      @page { size:A4 portrait; margin:0; }
+    }
+    .print-controls { position:fixed; bottom:20px; right:20px; display:flex; gap:8px; z-index:100; }
+    .btn-print { background:var(--green-700); color:white; border:none; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; }
+    .btn-back { background:white; color:var(--ink); border:1px solid rgba(29,107,66,.2); padding:10px 16px; border-radius:8px; font-size:14px; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; text-decoration:none; display:inline-flex; align-items:center; }
+  </style>
+</head>
+<body>
+
+  <div class="print-controls no-print">
+    <a href={`/ramadan/${tahun}/${kotaSlug}`} class="btn-back">← Kembali</a>
+    <button class="btn-print" onclick="window.print()">Print / Simpan PDF</button>
+  </div>
+
+  <div class="page">
+
+    <div class="header">
+      <div>
+        <div class="logo">KalenderIslam<span>.id</span></div>
+        <div style="font-size:7.5pt; color:var(--ink-light); margin-top:2px;">kalenderislam.id</div>
+      </div>
+      <div class="header-title">
+        <span class="arabic-title">رَمَضَان</span>
+        <div class="title-main">Jadwal Imsakiyah Ramadan {tahun}</div>
+        <div class="title-sub">{kota.name}, {kota.province} · {hijriStart.year} H</div>
+      </div>
+      <div class="header-right">
+        <div>Zona Waktu: <strong>{tzLabel}</strong></div>
+        <div>Metode: Kemenag RI</div>
+        <div>Koordinat: {kota.lat.toFixed(4)}, {kota.lng.toFixed(4)}</div>
+        {!isConfirmed && (
+          <div style="color:#92400E; font-weight:600;">Tanggal perkiraan</div>
+        )}
+      </div>
+    </div>
+
+    <div class="info-bar">
+      <div class="info-item">
+        <span class="info-label">1 Ramadan</span>
+        <span class="info-value">
+          {new Date(ramadanStart + 'T12:00:00').getDate()} {BULAN_INDO[new Date(ramadanStart + 'T12:00:00').getMonth()]}
+        </span>
+      </div>
+      <div class="info-item"><span class="info-label">Total Puasa</span><span class="info-value">30 Hari</span></div>
+      <div class="info-item"><span class="info-label">Imsak</span><span class="info-value">Subuh - 10 mnt</span></div>
+      <div class="info-item"><span class="info-label">Buka Puasa</span><span class="info-value">Waktu Maghrib</span></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22px;">No</th>
+          <th style="width:26px;">Hr</th>
+          <th style="width:68px; text-align:left; padding-left:6px;">Tanggal</th>
+          <th style="width:44px;">Hijri</th>
+          <th style="width:40px;">Imsak</th>
+          <th style="width:40px;">Subuh</th>
+          <th style="width:40px;">Dzuhur</th>
+          <th style="width:40px;">Ashar</th>
+          <th style="width:44px;">Maghrib</th>
+          <th style="width:40px;">Isya</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(row => (
+          <tr class={row.isFriday ? 'friday' : ''}>
+            <td class="td-no">{row.no}</td>
+            <td class="td-hari">{row.hari}</td>
+            <td class="td-tanggal">{row.tanggal}</td>
+            <td class="td-hijri">{row.hijri}</td>
+            <td class="td-imsak">{row.imsak}</td>
+            <td>{row.subuh}</td>
+            <td>{row.dzuhur}</td>
+            <td>{row.ashar}</td>
+            <td class="td-maghrib">{row.maghrib}</td>
+            <td>{row.isya}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <div>
+        <strong>KalenderIslam.id</strong> — Kalender Islam terlengkap untuk Muslim Indonesia
+        <div class="disclaimer">
+          Waktu sholat dihitung menggunakan metode Kemenag RI (Fajr 20°, Isha 18°, Mazhab Syafi'i).
+          {!isConfirmed && ' Tanggal Ramadan bersifat perkiraan — menunggu sidang isbat Kemenag RI.'}
+          Perbedaan waktu ±1-2 menit mungkin terjadi karena faktor geografis lokal.
+        </div>
+      </div>
+      <div style="text-align:right; white-space:nowrap;">
+        <div>kalenderislam.id/ramadan/{tahun}/{kotaSlug}</div>
+        <div style="margin-top:2px;">© {tahun} KalenderIslam.id</div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
