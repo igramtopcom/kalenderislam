@@ -1,0 +1,14 @@
+---
+const BULAN = ['januari','februari','maret','april','mei','juni','juli','agustus','september','oktober','november','desember'];
+export function getStaticPaths() {
+  const paths: { params: { tahun: string; bulan: string } }[] = [];
+  for (let y = 2024; y <= 2032; y++) {
+    for (const b of ['januari','februari','maret','april','mei','juni','juli','agustus','september','oktober','november','desember']) {
+      paths.push({ params: { tahun: String(y), bulan: b } });
+    }
+  }
+  return paths;
+}
+const { tahun, bulan } = Astro.params;
+---
+<html><body><p>Kalender {bulan} {tahun} — placeholder</p></body></html>

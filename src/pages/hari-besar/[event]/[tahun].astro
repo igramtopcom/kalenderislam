@@ -1,0 +1,14 @@
+---
+export function getStaticPaths() {
+  const events = ['idul-fitri','idul-adha','isra-miraj','maulid-nabi','tahun-baru-islam','nuzulul-quran','lailatul-qadar','ramadan'];
+  const paths: { params: { event: string; tahun: string } }[] = [];
+  for (const e of events) {
+    for (let y = 2024; y <= 2031; y++) {
+      paths.push({ params: { event: e, tahun: String(y) } });
+    }
+  }
+  return paths;
+}
+const { event, tahun } = Astro.params;
+---
+<html><body><p>Hari Besar {event} {tahun} — placeholder</p></body></html>

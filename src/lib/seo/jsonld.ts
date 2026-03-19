@@ -1,0 +1,1 @@
+// jsonld.ts — placeholder

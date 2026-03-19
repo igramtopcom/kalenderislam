@@ -1,0 +1,7 @@
+---
+export function getStaticPaths() {
+  return [{ params: { kota: 'jakarta' } }];
+}
+const { kota } = Astro.params;
+---
+<html><body><p>Sholat {kota} — placeholder</p></body></html>

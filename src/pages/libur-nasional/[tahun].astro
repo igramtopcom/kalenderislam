@@ -1,0 +1,9 @@
+---
+export function getStaticPaths() {
+  return Array.from({ length: 7 }, (_, i) => ({
+    params: { tahun: String(2024 + i) },
+  }));
+}
+const { tahun } = Astro.params;
+---
+<html><body><p>Libur Nasional {tahun} — placeholder</p></body></html>

@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-green-50: #F0FAF5;
+  --color-green-100: #D4F4EA;
+  --color-green-200: #9FE1CB;
+  --color-green-400: #2EC98F;
+  --color-green-500: #1D9E75;
+  --color-green-600: #1D6B42;
+  --color-green-700: #155232;
+  --color-green-800: #0D3D22;
+  --color-green-900: #062917;
+  --color-gold-100: #FBF3D5;
+  --color-gold-400: #E2BC45;
+  --color-gold-500: #C9A227;
+  --color-gold-600: #A07820;
+  --color-cream: #FDFAF4;
+  --color-ink: #141C14;
+  --color-ink-muted: #3D4A3D;
+  --color-ink-light: #6B7A6B;
+  --font-serif: 'Lora', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-arabic: 'Amiri', serif;
+  --radius-pill: 999px;
+  --max-width-site: 1200px;
+}
+
+:root {
+  --green-900: #062917;
+  --green-800: #0D3D22;
+  --green-700: #155232;
+  --green-600: #1D6B42;
+  --green-500: #1D9E75;
+  --green-400: #2EC98F;
+  --green-200: #9FE1CB;
+  --green-100: #D4F4EA;
+  --green-50:  #F0FAF5;
+  --gold-600:  #A07820;
+  --gold-500:  #C9A227;
+  --gold-400:  #E2BC45;
+  --gold-100:  #FBF3D5;
+  --cream:     #FDFAF4;
+  --ink:       #141C14;
+  --ink-muted: #3D4A3D;
+  --ink-light: #6B7A6B;
+  --border:    rgba(29,107,66,.12);
+}
+
+body {
+  background-color: var(--cream);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}

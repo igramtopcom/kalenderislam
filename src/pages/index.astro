@@ -1,17 +1,12 @@
 ---
-
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import '@/styles/global.css';
 ---
-
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="KalenderIslam.id — Kalender Hijriah, Masehi & Jawa">
+  <main class="p-8 text-center">
+    <h1 class="font-serif text-2xl text-green-700 mb-4">
+      KalenderIslam.id
+    </h1>
+    <p class="text-ink-muted">Sedang dalam pengembangan — Sprint S-01</p>
+  </main>
+</BaseLayout>

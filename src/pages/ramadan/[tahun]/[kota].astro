@@ -1,0 +1,11 @@
+---
+export function getStaticPaths() {
+  const paths: { params: { tahun: string; kota: string } }[] = [];
+  for (let y = 2025; y <= 2028; y++) {
+    paths.push({ params: { tahun: String(y), kota: 'jakarta' } });
+  }
+  return paths;
+}
+const { tahun, kota } = Astro.params;
+---
+<html><body><p>Ramadan {tahun} {kota} — placeholder</p></body></html>
