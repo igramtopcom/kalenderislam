@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { gregorianToHijri, gregorianToJawa } from '@/lib/calendar';
+import { gregorianToHijri, gregorianToJawa, getSholatTimesFormatted, getTimezoneLabel } from '@/lib/calendar';
 import { getKemenagOfficialDates, getNationalHolidaysSafe, getAllHariBesar } from '@/lib/data';
+import { getKotaBySlug } from '@/lib/data';
 import CalendarGrid from '@/components/calendar/CalendarGrid.astro';
 import TodayWidget from '@/components/islands/TodayWidget.tsx';
 import PrayerBar from '@/components/islands/PrayerBar.tsx';
@@ -58,6 +59,45 @@ const daysToRamadan = ramadanDate
   ? Math.round((ramadanDate.getTime() - todayNoonRamadan.getTime()) / 86_400_000)
   : null;
 
+// ── Jadwal Sholat (Jakarta default — SSR static) ────────────────────────────
+const defaultKota = getKotaBySlug('jakarta')!;
+const sholatTimes = getSholatTimesFormatted(
+  defaultKota.lat,
+  defaultKota.lng,
+  today,
+  defaultKota.timezone
+);
+const tzLabel = getTimezoneLabel(defaultKota.timezone);
+const kota    = defaultKota;
+
+// ── Determine active prayer time ─────────────────────────────────────────────
+function getActivePrayer(): string {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Jakarta', hour12: false });
+  const [hh, mm] = timeStr.split(':').map(Number);
+  const nowMinutes = hh * 60 + mm;
+
+  const parseTime = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  };
+
+  const fajr    = parseTime(sholatTimes.fajr);
+  const dhuhr   = parseTime(sholatTimes.dhuhr);
+  const asr     = parseTime(sholatTimes.asr);
+  const maghrib = parseTime(sholatTimes.maghrib);
+  const isha    = parseTime(sholatTimes.isha);
+
+  if (nowMinutes >= isha)    return 'Isya';
+  if (nowMinutes >= maghrib) return 'Maghrib';
+  if (nowMinutes >= asr)     return 'Ashar';
+  if (nowMinutes >= dhuhr)   return 'Dzuhur';
+  if (nowMinutes >= fajr)    return 'Subuh';
+  return 'Isya'; // before fajr = still isha from prev day
+}
+
+const activePrayer = getActivePrayer();
+
 const metaTitle = `Kalender Islam ${tahun} — Tanggal Hijriah & Jawa Hari Ini | KalenderIslam.id`;
 const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHijri.formatted} = ${todayJawa.weton}. Kalender Islam lengkap Hijriah, Masehi, Jawa. Akurat sesuai Kemenag RI.`;
 ---
@@ -71,12 +111,12 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
     </div>
   </div>
 
-  <!-- HERO SECTION -->
+  <!-- HERO SECTION — 3 Column Layout -->
   <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)]"
            style="padding-top: clamp(2rem,5vw,4rem); padding-bottom: 2.5rem;">
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-5 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_400px_220px] gap-5 items-start">
 
-      <!-- TODAY CARD -->
+      <!-- COLUMN 1: TODAY CARD -->
       <div
         class="rounded-3xl relative overflow-hidden animate-fade-up"
         style="background: var(--green-800); padding: 2.5rem 2.5rem 2rem;"
@@ -109,10 +149,47 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
 
           <!-- Real-time Today Widget (client:load Island) -->
           <TodayWidget client:load />
+
+          <!-- Upcoming event mini card (inside Today Card) -->
+          {upcomingEvents.length > 0 && (() => {
+            const next = upcomingEvents[0];
+            const hb   = hariBesarList.find(h => h.event_id === next.event);
+            if (!next.bestDate || !hb) return null;
+
+            const eventDate  = new Date(next.bestDate + 'T12:00:00');
+            const todayNoon  = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
+            const daysLeft   = Math.max(0, Math.round((eventDate.getTime() - todayNoon.getTime()) / 86_400_000));
+            const isTomorrow = daysLeft === 1;
+            const isToday2   = daysLeft === 0;
+
+            return (
+              <div
+                class="rounded-xl p-3 mt-4 transition-colors duration-150"
+                style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);"
+              >
+                <p class="text-[0.65rem] font-semibold uppercase tracking-widest mb-1"
+                   style="color:rgba(255,255,255,.45);">
+                  {isToday2 ? '🎉 Hari Ini' : isTomorrow ? '⭐ Besok' : `📅 ${daysLeft} Hari Lagi`}
+                </p>
+                <p class="text-[0.92rem] font-semibold" style="color:white;">
+                  {hb.nama}
+                </p>
+                <p class="text-[0.75rem] mt-0.5" style="color:var(--green-200);">
+                  {eventDate.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}
+                  {!next.isConfirmed && (
+                    <span class="ml-1.5 text-[0.65rem] px-1.5 py-0.5 rounded-full"
+                          style="background:rgba(254,243,199,.15); color:#FEF3C7;">
+                      Perkiraan
+                    </span>
+                  )}
+                </p>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
-      <!-- CALENDAR PREVIEW -->
+      <!-- COLUMN 2: CALENDAR PREVIEW -->
       <div class="animate-fade-up-delay">
         <CalendarGrid
           year={currentYear}
@@ -121,6 +198,141 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
           officialDates={officialDates}
           compact={false}
         />
+      </div>
+
+      <!-- COLUMN 3: INFO PANEL (hidden on mobile) -->
+      <div class="hidden lg:flex flex-col gap-4 animate-fade-up-delay">
+
+        <!-- Jadwal Sholat Card -->
+        <div
+          class="rounded-2xl overflow-hidden"
+          style="background:white; border:1px solid rgba(29,107,66,.12);"
+        >
+          <!-- Header -->
+          <div
+            class="px-4 py-3 flex items-center justify-between"
+            style="background:var(--green-50); border-bottom:1px solid rgba(29,107,66,.12);"
+          >
+            <div>
+              <p class="text-[0.78rem] font-semibold" style="color:var(--ink);">
+                Jadwal Sholat
+              </p>
+              <p class="text-[0.68rem]" style="color:var(--ink-light);">
+                {kota.name} · {tzLabel}
+              </p>
+            </div>
+            <a
+              href={`/sholat/${kota.slug}`}
+              class="text-[0.68rem] font-medium no-underline"
+              style="color:var(--green-600);"
+            >
+              Lihat →
+            </a>
+          </div>
+
+          <!-- Waktu sholat list -->
+          <div class="px-4 py-3 space-y-2">
+            {[
+              { label: 'Subuh',   time: sholatTimes.fajr    },
+              { label: 'Dzuhur',  time: sholatTimes.dhuhr   },
+              { label: 'Ashar',   time: sholatTimes.asr     },
+              { label: 'Maghrib', time: sholatTimes.maghrib },
+              { label: 'Isya',    time: sholatTimes.isha    },
+            ].map(item => {
+              const isActive = item.label === activePrayer;
+              return (
+                <div
+                  class="flex items-center justify-between py-1.5 px-2 rounded-lg"
+                  style={isActive
+                    ? 'background:rgba(29,158,117,.08); border:1px solid rgba(29,158,117,.2);'
+                    : ''}
+                >
+                  <div class="flex items-center gap-2">
+                    {isActive && (
+                      <span
+                        class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style="background:var(--green-400); animation:pulse 2s infinite;"
+                      ></span>
+                    )}
+                    <span
+                      class="text-[0.78rem]"
+                      style={isActive ? 'color:var(--green-600); font-weight:500;' : 'color:var(--ink-light);'}
+                    >
+                      {item.label}
+                    </span>
+                  </div>
+                  <span
+                    class="text-[0.82rem] font-semibold tabular-nums"
+                    style={isActive ? 'color:var(--green-600);' : 'color:var(--ink);'}
+                  >
+                    {item.time}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <!-- Hari Besar Mendatang Card -->
+        {upcomingEvents.length > 0 && (
+          <div
+            class="rounded-2xl overflow-hidden"
+            style="background:white; border:1px solid rgba(29,107,66,.12);"
+          >
+            <div
+              class="px-4 py-3"
+              style="background:var(--green-50); border-bottom:1px solid rgba(29,107,66,.12);"
+            >
+              <p class="text-[0.78rem] font-semibold" style="color:var(--ink);">
+                Hari Besar Mendatang
+              </p>
+            </div>
+            <div class="px-4 py-3 space-y-2.5">
+              {upcomingEvents.slice(0, 3).map(event => {
+                const hb = hariBesarList.find(h => h.event_id === event.event);
+                if (!event.bestDate || !hb) return null;
+
+                const eventDate = new Date(event.bestDate + 'T12:00:00');
+                const todayNoon = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
+                const daysLeft  = Math.max(0, Math.round((eventDate.getTime() - todayNoon.getTime()) / 86_400_000));
+
+                return (
+                  <a
+                    href={`/hari-besar/${hb.slug}/${eventDate.getFullYear()}`}
+                    class="flex items-center gap-3 no-underline group"
+                  >
+                    <!-- Countdown box -->
+                    <div
+                      class="min-w-[44px] h-[44px] rounded-lg flex flex-col items-center
+                             justify-center flex-shrink-0"
+                      style="background:var(--green-50);"
+                    >
+                      <span class="text-[1rem] font-bold leading-none" style="color:var(--green-700);">
+                        {daysLeft}
+                      </span>
+                      <span class="text-[0.55rem] uppercase tracking-wide" style="color:var(--ink-light);">
+                        hari
+                      </span>
+                    </div>
+                    <!-- Info -->
+                    <div class="min-w-0">
+                      <p class="text-[0.8rem] font-semibold truncate" style="color:var(--ink);">
+                        {hb.nama}
+                      </p>
+                      <p class="text-[0.7rem]" style="color:var(--ink-light);">
+                        {eventDate.toLocaleDateString('id-ID', { day:'numeric', month:'short' })}
+                        {!event.isConfirmed && (
+                          <span class="ml-1 text-[0.62rem]" style="color:var(--ink-light);">· perkiraan</span>
+                        )}
+                      </p>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
       </div>
 
     </div>
@@ -166,9 +378,9 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
     </div>
   </section>
 
-  <!-- HARI BESAR MENDATANG -->
+  <!-- HARI BESAR MENDATANG (mobile + tablet — visible below lg) -->
   {upcomingEvents.length > 0 && (
-    <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] mb-10">
+    <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] mb-10 lg:hidden">
       <h2 class="text-[1.4rem] font-semibold mb-5"
           style="font-family:'Lora',serif; color:var(--ink);">
         Hari Besar Mendatang
