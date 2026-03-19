@@ -79,24 +79,17 @@ const jsonLd = {
         <span class="text-[0.75rem]" style="color:var(--ink-light);">{todayStr}</span>
       </div>
 
-      <!-- SSR fallback -->
-      <div id="prayer-ssr" class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        {[
-          { name: 'Subuh', time: todaySSR.fajr }, { name: 'Dzuhur', time: todaySSR.dhuhr },
-          { name: 'Ashar', time: todaySSR.asr }, { name: 'Maghrib', time: todaySSR.maghrib },
-          { name: 'Isya', time: todaySSR.isha },
-        ].map(p => (
-          <div class="rounded-2xl p-4 text-center" style="background:white; border:1px solid rgba(29,107,66,.12);">
-            <p class="text-[0.72rem] font-semibold uppercase tracking-wider mb-1" style="color:var(--ink-light);">{p.name}</p>
-            <p class="text-[1.2rem] font-bold tabular-nums" style="font-family:'Lora',serif; color:var(--ink);">{p.time}</p>
-            <p class="text-[0.65rem] mt-0.5" style="color:var(--ink-light);">{tzLabel}</p>
-          </div>
-        ))}
-      </div>
+      <!-- Island (real-time with highlight) -->
+      <PrayerTimes lat={kota.lat} lng={kota.lng} timezone={kota.timezone} kotaName={kota.name} client:load />
 
-      <!-- Island replaces SSR -->
-      <div id="prayer-island">
-        <PrayerTimes lat={kota.lat} lng={kota.lng} timezone={kota.timezone} kotaName={kota.name} client:load />
+      <!-- SSR fallback for Googlebot (hidden visually, readable by crawlers) -->
+      <div style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
+        <p>
+          Jadwal sholat {kota.name} hari ini:
+          Subuh {todaySSR.fajr}, Dzuhur {todaySSR.dhuhr},
+          Ashar {todaySSR.asr}, Maghrib {todaySSR.maghrib},
+          Isya {todaySSR.isha} {tzLabel}.
+        </p>
       </div>
     </div>
 
