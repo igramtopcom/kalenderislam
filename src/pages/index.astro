@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import JsonLD from '@/components/seo/JsonLD.astro';
 import { gregorianToHijri, gregorianToJawa } from '@/lib/calendar';
 import { getKemenagOfficialDates, getNationalHolidaysSafe, getAllHariBesar } from '@/lib/data';
 import CalendarGrid from '@/components/calendar/CalendarGrid.astro';
@@ -58,11 +59,27 @@ const daysToRamadan = ramadanDate
   ? Math.round((ramadanDate.getTime() - todayNoonRamadan.getTime()) / 86_400_000)
   : null;
 
-const metaTitle = `Kalender Islam ${tahun} — Tanggal Hijriah & Jawa Hari Ini | KalenderIslam.id`;
-const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHijri.formatted} = ${todayJawa.weton}. Kalender Islam lengkap Hijriah, Masehi, Jawa. Akurat sesuai Kemenag RI.`;
+const speakableJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  'name': `Kalender Islam ${tahun} — Tanggal Hijriah Hari Ini`,
+  'speakable': {
+    '@type': 'SpeakableSpecification',
+    'cssSelector': ['#tanggal-hijri-hari-ini'],
+  },
+  'url': 'https://kalenderislam.id/',
+};
+
+const metaTitle = `Kalender Islam ${tahun} — ${todayHijri.day} ${todayHijri.monthName} ${todayHijri.year} H Hari Ini | KalenderIslam.id`;
+const metaDesc = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ` +
+  `${todayHijri.day} ${todayHijri.monthName} ${todayHijri.year} H = ` +
+  `${todayJawa.weton} (Neptu ${todayJawa.neptu}). ` +
+  `Kalender Islam lengkap Hijriah, Masehi, dan Jawa untuk Muslim Indonesia.`;
 ---
 
 <BaseLayout title={metaTitle} description={metaDesc} canonicalPath="/">
+
+  <JsonLD schema={speakableJsonLd} />
 
   <!-- PRAYER TIMES BAR (real-time with geolocation) -->
   <div style="background: var(--green-900);" class="py-2 px-[clamp(1rem,4vw,3rem)]">
@@ -134,6 +151,22 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
              style="color: var(--green-200); opacity: .7;">
             Hari Ini
           </p>
+
+          <!-- SSR Text untuk Googlebot — visually hidden tapi semantically present -->
+          <div
+            id="tanggal-hijri-hari-ini"
+            aria-hidden="false"
+            style="position:absolute; width:1px; height:1px; overflow:hidden;
+                   clip:rect(0,0,0,0); white-space:nowrap;"
+          >
+            <h2>Tanggal Hijriah Hari Ini</h2>
+            <p>
+              Hari ini {hariIni}, {tanggal} {bulan} {tahun} bertepatan dengan
+              {todayHijri.day} {todayHijri.monthName} {todayHijri.year} H
+              dalam kalender Hijriah.
+              Weton Jawa hari ini adalah {todayJawa.weton} dengan neptu {todayJawa.neptu}.
+            </p>
+          </div>
 
           <!-- Real-time Today Widget (client:load Island) -->
           <TodayWidget client:load />
