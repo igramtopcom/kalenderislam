@@ -85,15 +85,18 @@ const nextUrl = `/kalender/${cal.nextMonth.year}/${BULAN_INDO[cal.nextMonth.mont
 
   <!-- Calendar Grid: 42 cells = 6 rows × 7 columns -->
   <div class="grid grid-cols-7 px-3 pb-3" style="gap:2px;">
-    {cal.days.map(day => (
+    {cal.days.map(day => {
+      return (
       <div
         class={`
-          relative aspect-square rounded-[10px] flex flex-col items-center
+          cal-day relative aspect-square rounded-[10px] flex flex-col items-center
           justify-center py-1 transition-colors duration-150
           ${day.isOtherMonth ? 'opacity-30' : 'cursor-pointer'}
           ${!day.isToday && !day.isOtherMonth ? 'hover:bg-green-50' : ''}
         `}
         style={day.isToday ? 'background:var(--green-700);' : ''}
+        data-date={day.dateKey}
+        onclick={!day.isOtherMonth ? `window.dispatchEvent(new CustomEvent('kalender-day-click',{detail:{dateStr:'${day.dateKey}'}}))` : undefined}
         title={day.isOtherMonth ? '' : (day.holidayName ?? `${day.dayMasehi} ${day.hijri.monthName} ${day.hijri.year} H — ${day.jawa.weton}`)}
       >
         {/* .d-masehi: 0.85rem/600 */}
@@ -138,7 +141,7 @@ const nextUrl = `/kalender/${cal.nextMonth.year}/${BULAN_INDO[cal.nextMonth.mont
           ></span>
         )}
       </div>
-    ))}
+    ); })}
   </div>
 
   <!-- Footer -->

@@ -9,6 +9,7 @@ import TodayWidget from '@/components/islands/TodayWidget.tsx';
 import PrayerBar from '@/components/islands/PrayerBar.tsx';
 import FaqAccordion from '@/components/islands/FaqAccordion.tsx';
 import SholatHomepage from '@/components/islands/SholatHomepage.tsx';
+import CalendarDayDetail from '@/components/islands/CalendarDayDetail.tsx';
 
 // ── Tanggal hari ini (server-side) ───────────────────────────────────────────
 const today       = new Date();
@@ -73,6 +74,11 @@ const sholatToday   = getSholatTimesFormatted(
 );
 const tzLabelSholat = getTimezoneLabel(defaultKota.timezone);
 const tanggalStr    = `${hariIni}, ${tanggal} ${bulan} ${currentYear}`;
+
+// ── Holidays map for CalendarDayDetail Island ────────────────────────────────
+const holidaysMap: Record<string, string> = {};
+holidays.forEach(h => { holidaysMap[h.tanggal] = h.nama; });
+const todayStr = `${currentYear}-${String(today.getMonth() + 1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
 const speakableJsonLd = {
   '@context': 'https://schema.org',
@@ -313,7 +319,7 @@ const faqJsonLd = {
         </div>
       </div>
 
-      <!-- CALENDAR PREVIEW -->
+      <!-- CALENDAR PREVIEW + Day Detail Panel -->
       <div class="animate-fade-up-delay">
         <CalendarGrid
           year={currentYear}
@@ -322,7 +328,29 @@ const faqJsonLd = {
           officialDates={officialDates}
           compact={false}
         />
+        <CalendarDayDetail
+          holidays={holidaysMap}
+          todayStr={todayStr}
+          client:visible
+        />
       </div>
+
+      <!-- Highlight selected day script -->
+      <script>
+        window.addEventListener('kalender-day-click', (e) => {
+          const dateStr = (e as CustomEvent).detail.dateStr;
+          document.querySelectorAll('.cal-day.selected').forEach(el => {
+            (el as HTMLElement).classList.remove('selected');
+            (el as HTMLElement).style.outline = '';
+          });
+          const target = document.querySelector(`[data-date="${dateStr}"]`);
+          if (target) {
+            target.classList.add('selected');
+            (target as HTMLElement).style.outline = '2px solid var(--green-500)';
+            (target as HTMLElement).style.outlineOffset = '-2px';
+          }
+        });
+      </script>
 
     </div>
   </section>
