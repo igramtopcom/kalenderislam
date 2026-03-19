@@ -39,6 +39,16 @@ const BULAN_INDO = [
 
 export { BULAN_INDO };
 
+export const BULAN_SLUG: Record<string, number> = {
+  'januari':   0, 'februari':  1, 'maret':     2, 'april':     3,
+  'mei':       4, 'juni':      5, 'juli':      6, 'agustus':   7,
+  'september': 8, 'oktober':   9, 'november':  10, 'desember':  11,
+};
+
+export const SLUG_BULAN = Object.fromEntries(
+  Object.entries(BULAN_SLUG).map(([k, v]) => [v, k])
+) as Record<number, string>;
+
 export function generateMonthCalendar(
   year: number,
   month: number,
