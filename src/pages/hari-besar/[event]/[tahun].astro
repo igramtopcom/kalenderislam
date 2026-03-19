@@ -1,14 +1,333 @@
 ---
-export function getStaticPaths() {
-  const events = ['idul-fitri','idul-adha','isra-miraj','maulid-nabi','tahun-baru-islam','nuzulul-quran','lailatul-qadar','ramadan','hari-arafah'];
-  const paths: { params: { event: string; tahun: string } }[] = [];
-  for (const e of events) {
-    for (let y = 2024; y <= 2031; y++) {
-      paths.push({ params: { event: e, tahun: String(y) } });
-    }
-  }
-  return paths;
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JsonLD from '@/components/seo/JsonLD.astro';
+import Countdown from '@/components/islands/Countdown.tsx';
+import { getAllHariBesar, getHariBesarBySlug, getOfficialDateByEvent } from '@/lib/data';
+import { gregorianToHijri } from '@/lib/calendar';
+import type { OfficialDateEvent } from '@/lib/types';
+
+export async function getStaticPaths() {
+  const hariBesarList = getAllHariBesar();
+  const tahunRange = Array.from({ length: 7 }, (_, i) => 2024 + i);
+
+  return hariBesarList.flatMap(hb =>
+    tahunRange.map(tahun => ({
+      params: { event: hb.slug, tahun: String(tahun) },
+      props:  { eventSlug: hb.slug, tahun },
+    }))
+  );
 }
-const { event, tahun } = Astro.params;
+
+const { eventSlug, tahun } = Astro.props as { eventSlug: string; tahun: number };
+
+const hariBesar = getHariBesarBySlug(eventSlug);
+if (!hariBesar) return Astro.redirect('/404');
+
+const officialDate = await getOfficialDateByEvent(
+  hariBesar.event_id as OfficialDateEvent,
+  tahun
+);
+
+const bestDate    = officialDate?.bestDate ?? null;
+const isConfirmed = officialDate?.isConfirmed ?? false;
+
+const BULAN_INDO = [
+  'Januari','Februari','Maret','April','Mei','Juni',
+  'Juli','Agustus','September','Oktober','November','Desember'
+];
+
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return 'Menunggu pengumuman';
+  const d = new Date(dateStr + 'T12:00:00');
+  return `${d.getDate()} ${BULAN_INDO[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function formatHijriFromDate(dateStr: string | null): string {
+  if (!dateStr) return '';
+  return gregorianToHijri(new Date(dateStr + 'T12:00:00')).formatted;
+}
+
+const title = `${hariBesar.nama} ${tahun} — Tanggal & Countdown | KalenderIslam.id`;
+const desc  = `${hariBesar.nama} ${tahun} jatuh tanggal berapa? Tanggal resmi Kemenag, versi Muhammadiyah, dan countdown hari. Update otomatis.`;
+
+const isPast = bestDate ? new Date(bestDate + 'T00:00:00') < new Date() : false;
+
+// JSON-LD Event
+const jsonLdEvent = bestDate ? {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: `${hariBesar.nama} ${tahun}`,
+  startDate: bestDate,
+  endDate: bestDate,
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  location: {
+    '@type': 'Place',
+    name: 'Indonesia',
+    address: { '@type': 'PostalAddress', addressCountry: 'ID' },
+  },
+  organizer: {
+    '@type': 'GovernmentOrganization',
+    name: 'Kementerian Agama Republik Indonesia',
+    url: 'https://kemenag.go.id',
+  },
+  description: hariBesar.deskripsi,
+} : null;
+
+// FAQ schema
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: `${hariBesar.nama} ${tahun} jatuh tanggal berapa?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: bestDate
+          ? `${hariBesar.nama} ${tahun} diperkirakan jatuh pada ${formatDate(bestDate)} (${formatHijriFromDate(bestDate)}). ${isConfirmed ? 'Tanggal ini telah dikonfirmasi oleh Kemenag RI.' : 'Tanggal pasti menunggu hasil sidang isbat Kemenag RI.'}`
+          : `Tanggal ${hariBesar.nama} ${tahun} belum diumumkan oleh Kemenag RI.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: `Berapa hari lagi ${hariBesar.nama} ${tahun}?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: bestDate && !isPast
+          ? `${hariBesar.nama} ${tahun} akan tiba pada ${formatDate(bestDate)}.`
+          : `${hariBesar.nama} ${tahun} telah berlalu.`,
+      },
+    },
+  ],
+};
 ---
-<html><body><p>Hari Besar {event} {tahun} — placeholder</p></body></html>
+
+<BaseLayout
+  title={title}
+  description={desc}
+  canonicalPath={`/hari-besar/${eventSlug}/${tahun}`}
+>
+  <JsonLD schema={jsonLdEvent} />
+  <JsonLD schema={faqSchema} />
+
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-6 flex-wrap text-[0.78rem]">
+      <a href="/" class="no-underline" style="color:var(--ink-light) !important;">Beranda</a>
+      <span style="color:var(--ink-light);">›</span>
+      <span style="color:var(--ink-light);">Hari Besar</span>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="font-medium" style="color:var(--ink);">{hariBesar.nama} {tahun}</span>
+    </div>
+
+    <!-- Hero Banner -->
+    <div
+      class="rounded-3xl relative overflow-hidden mb-8"
+      style="background:linear-gradient(135deg, var(--green-800) 0%, var(--green-900) 100%);
+             padding:2.5rem clamp(1.5rem,4vw,3rem);"
+    >
+      <div class="absolute inset-0 pointer-events-none opacity-5" aria-hidden="true">
+        <svg width="100%" height="100%"><defs><pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="1.5" fill="white"/></pattern></defs><rect width="100%" height="100%" fill="url(#dots)"/></svg>
+      </div>
+
+      <div class="relative z-10">
+        {hariBesar.nama_arab && (
+          <p class="text-[1.8rem] mb-3 text-center"
+             style="font-family:'Amiri',serif; color:rgba(226,188,69,.8);">
+            {hariBesar.nama_arab}
+          </p>
+        )}
+
+        <!-- Status badge -->
+        <div class="flex justify-center mb-4">
+          {isConfirmed ? (
+            <span class="px-3 py-1 rounded-full text-[0.75rem] font-semibold"
+                  style="background:rgba(46,201,143,.2); color:var(--green-400);
+                         border:1px solid rgba(46,201,143,.3);">
+              Tanggal Resmi Kemenag
+            </span>
+          ) : (
+            <span class="px-3 py-1 rounded-full text-[0.75rem] font-semibold"
+                  style="background:rgba(254,243,199,.15); color:#FEF3C7;
+                         border:1px solid rgba(254,243,199,.3);">
+              Menunggu Sidang Isbat
+            </span>
+          )}
+        </div>
+
+        <h1 class="text-center text-white mb-2"
+            style="font-family:'Lora',serif;
+                   font-size:clamp(1.6rem,3vw,2.2rem); font-weight:700;">
+          {hariBesar.nama} {tahun}
+        </h1>
+
+        {bestDate && (
+          <p class="text-center text-[1.1rem] mb-6" style="color:var(--green-200);">
+            {formatDate(bestDate)}
+            <span class="text-[0.85rem] ml-2" style="color:var(--green-200); opacity:.7;">
+              · {formatHijriFromDate(bestDate)}
+            </span>
+          </p>
+        )}
+
+        {bestDate && !isPast && (
+          <div class="flex flex-col items-center gap-3">
+            <p class="text-[0.72rem] font-semibold uppercase tracking-widest"
+               style="color:var(--green-200); opacity:.7;">Hitung Mundur</p>
+            <Countdown
+              targetDate={bestDate}
+              eventName={hariBesar.nama}
+              client:visible
+            />
+          </div>
+        )}
+
+        {isPast && (
+          <p class="text-center text-[0.9rem]" style="color:var(--green-200); opacity:.7;">
+            {hariBesar.nama} {tahun} telah berlalu
+          </p>
+        )}
+      </div>
+    </div>
+
+    <!-- 3 Sumber Tanggal -->
+    <div class="mb-8">
+      <h2 class="text-[1.2rem] font-semibold mb-4"
+          style="font-family:'Lora',serif; color:var(--ink);">
+        Perbandingan Tanggal
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        <!-- Kemenag -->
+        <div class="rounded-2xl p-5"
+             style={isConfirmed
+               ? 'background:var(--green-50); border:2px solid var(--green-500);'
+               : 'background:white; border:1px solid rgba(29,107,66,.12);'}>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-lg">🕌</span>
+            <p class="text-[0.75rem] font-semibold uppercase tracking-wider" style="color:var(--green-600);">Kemenag RI</p>
+            {isConfirmed && (
+              <span class="ml-auto text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full"
+                    style="background:var(--green-100); color:var(--green-700);">Resmi</span>
+            )}
+          </div>
+          {officialDate?.tanggal_resmi ? (
+            <p class="text-[1.1rem] font-semibold" style="font-family:'Lora',serif; color:var(--ink);">
+              {formatDate(officialDate.tanggal_resmi)}
+            </p>
+          ) : (
+            <div>
+              <p class="text-[0.85rem] font-medium mb-1" style="color:var(--ink-light);">Belum diumumkan</p>
+              <p class="text-[0.72rem] px-2 py-1 rounded-lg inline-block"
+                 style="background:#FEF3C7; color:#92400E;">
+                Menunggu Sidang Isbat
+              </p>
+            </div>
+          )}
+        </div>
+
+        <!-- Muhammadiyah -->
+        <div class="rounded-2xl p-5" style="background:white; border:1px solid rgba(29,107,66,.12);">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-lg">📅</span>
+            <p class="text-[0.75rem] font-semibold uppercase tracking-wider" style="color:var(--ink-muted);">Muhammadiyah</p>
+          </div>
+          {officialDate?.tanggal_muhammadiyah ? (
+            <p class="text-[1.1rem] font-semibold" style="font-family:'Lora',serif; color:var(--ink);">
+              {formatDate(officialDate.tanggal_muhammadiyah)}
+            </p>
+          ) : (
+            <p class="text-[0.85rem]" style="color:var(--ink-light);">Belum tersedia</p>
+          )}
+          <p class="text-[0.72rem] mt-1" style="color:var(--ink-light);">Metode hisab hakiki wujudul hilal</p>
+        </div>
+
+        <!-- Perkiraan -->
+        <div class="rounded-2xl p-5" style="background:white; border:1px solid rgba(29,107,66,.12);">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-lg">🔮</span>
+            <p class="text-[0.75rem] font-semibold uppercase tracking-wider" style="color:var(--ink-muted);">Perkiraan Algoritma</p>
+          </div>
+          {officialDate?.tanggal_perkiraan ? (
+            <p class="text-[1.1rem] font-semibold" style="font-family:'Lora',serif; color:var(--ink);">
+              {formatDate(officialDate.tanggal_perkiraan)}
+            </p>
+          ) : (
+            <p class="text-[0.85rem]" style="color:var(--ink-light);">Tidak tersedia</p>
+          )}
+          <p class="text-[0.72rem] mt-1" style="color:var(--ink-light);">Berdasarkan kalkulasi Umm al-Qura</p>
+        </div>
+
+      </div>
+
+      <p class="mt-3 text-[0.78rem] leading-relaxed" style="color:var(--ink-light);">
+        Tanggal hari besar Islam ditentukan melalui sidang isbat Kemenag RI berdasarkan
+        rukyat hilal. Tanggal di atas bersifat perkiraan hingga diumumkan secara resmi.
+      </p>
+    </div>
+
+    <!-- Tentang + Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mb-8">
+
+      <div class="rounded-2xl p-6" style="background:white; border:1px solid rgba(29,107,66,.12);">
+        <h2 class="text-[1.1rem] font-semibold mb-3" style="font-family:'Lora',serif; color:var(--ink);">
+          Tentang {hariBesar.nama}
+        </h2>
+        <p class="text-[0.9rem] leading-relaxed mb-4" style="color:var(--ink-light);">
+          {hariBesar.deskripsi}
+        </p>
+
+        {hariBesar.amalan && hariBesar.amalan.length > 0 && (
+          <div>
+            <p class="text-[0.8rem] font-semibold mb-2" style="color:var(--ink);">Amalan Utama:</p>
+            <div class="flex flex-wrap gap-2">
+              {hariBesar.amalan.map(amalan => (
+                <span class="px-3 py-1 rounded-full text-[0.78rem] font-medium"
+                      style="background:var(--green-50); color:var(--green-700); border:1px solid rgba(29,107,66,.15);">
+                  {amalan}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <!-- Tahun lain -->
+      <div class="rounded-2xl p-5" style="background:white; border:1px solid rgba(29,107,66,.12);">
+        <h3 class="text-[0.85rem] font-semibold mb-3" style="color:var(--ink);">Tahun Lain</h3>
+        <div class="space-y-1.5">
+          {Array.from({ length: 7 }, (_, i) => 2024 + i).map(y => (
+            <a
+              href={`/hari-besar/${eventSlug}/${y}`}
+              class="flex items-center justify-between px-3 py-2 rounded-lg no-underline transition-colors duration-150 text-[0.82rem]"
+              style={y === tahun
+                ? 'background:var(--green-700); color:white !important;'
+                : 'background:var(--green-50); color:var(--ink-muted) !important;'}
+            >
+              <span>{y}</span>
+              {y === tahun && <span>←</span>}
+            </a>
+          ))}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Libur badge -->
+    {hariBesar.libur_nasional && (
+      <div class="rounded-xl p-4 flex items-center gap-3"
+           style="background:var(--gold-100); border:1px solid rgba(201,162,39,.3);">
+        <span class="text-2xl">🏖️</span>
+        <div>
+          <p class="text-[0.85rem] font-semibold" style="color:var(--gold-600);">Hari Libur Nasional</p>
+          <p class="text-[0.78rem]" style="color:var(--gold-600); opacity:.8;">
+            {hariBesar.nama} adalah hari libur nasional resmi di Indonesia
+          </p>
+        </div>
+      </div>
+    )}
+
+  </div>
+</BaseLayout>

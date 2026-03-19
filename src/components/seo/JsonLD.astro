@@ -1,1 +1,13 @@
-<!-- JsonLD placeholder -->
+---
+interface Props {
+  schema: Record<string, unknown> | null;
+}
+const { schema } = Astro.props;
+---
+
+{schema && (
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(schema, null, 0)}
+  />
+)}
