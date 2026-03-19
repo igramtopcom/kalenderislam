@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { gregorianToHijri, gregorianToJawa } from '@/lib/calendar';
 
 interface DayInfo {
@@ -31,24 +31,31 @@ const BULAN_DISPLAY = [
 
 export default function CalendarDayDetail({ holidays, todayStr }: Props) {
   const [selected, setSelected] = useState<DayInfo | null>(null);
+  const selectedRef = useRef<DayInfo | null>(null);
+
+  // Keep ref in sync
+  selectedRef.current = selected;
 
   useEffect(() => {
     const handleDayClick = (e: Event) => {
       const dateStr = (e as CustomEvent).detail.dateStr as string;
 
+      // Skip hari ini
       if (dateStr === todayStr) {
         setSelected(null);
         return;
       }
 
-      if (selected?.dateStr === dateStr) {
+      // Toggle: klik sama → tutup
+      if (selectedRef.current?.dateStr === dateStr) {
         setSelected(null);
         return;
       }
 
-      const date   = new Date(dateStr + 'T12:00:00');
-      const hijri  = gregorianToHijri(date);
-      const jawa   = gregorianToJawa(date);
+      // Hitung detail
+      const date      = new Date(dateStr + 'T12:00:00');
+      const hijri     = gregorianToHijri(date);
+      const jawa      = gregorianToJawa(date);
       const hariNama  = HARI_INDO[date.getDay()];
       const bulanNama = BULAN_DISPLAY[date.getMonth()];
 
@@ -68,7 +75,7 @@ export default function CalendarDayDetail({ holidays, todayStr }: Props) {
 
     window.addEventListener('kalender-day-click', handleDayClick);
     return () => window.removeEventListener('kalender-day-click', handleDayClick);
-  }, [selected, todayStr]);
+  }, [todayStr]); // Only depend on todayStr, use ref for selected
 
   if (!selected) return null;
 
