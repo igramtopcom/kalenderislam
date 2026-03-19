@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import JsonLD from '@/components/seo/JsonLD.astro';
 import { gregorianToHijri, gregorianToJawa, getSholatTimesFormatted, getTimezoneLabel } from '@/lib/calendar';
 import { getKemenagOfficialDates, getNationalHolidaysSafe, getAllHariBesar, getKotaBySlug } from '@/lib/data';
+import hijriMonthsDesc from '@/data/hijri-months-desc.json';
 import CalendarGrid from '@/components/calendar/CalendarGrid.astro';
 import TodayWidget from '@/components/islands/TodayWidget.tsx';
 import PrayerBar from '@/components/islands/PrayerBar.tsx';
@@ -58,6 +59,10 @@ const todayNoonRamadan = new Date(today.getFullYear(), today.getMonth(), today.g
 const daysToRamadan = ramadanDate
   ? Math.round((ramadanDate.getTime() - todayNoonRamadan.getTime()) / 86_400_000)
   : null;
+
+// ── Bulan Hijri saat ini ─────────────────────────────────────────────────────
+const currentHijriMonth = todayHijri.month;
+const hijriMonthDesc    = hijriMonthsDesc.find(m => m.month === currentHijriMonth);
 
 // ── Jadwal Sholat Jakarta (SSR static) ───────────────────────────────────────
 const defaultKota   = getKotaBySlug('jakarta')!;
@@ -327,6 +332,52 @@ const metaDesc = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ` +
       </p>
     </div>
   </section>
+
+  <!-- BULAN HIJRI SAAT INI -->
+  {hijriMonthDesc && (
+    <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] mb-10">
+      <div
+        class="rounded-2xl p-6"
+        style="background:var(--green-50); border:1px solid rgba(29,107,66,.12);"
+      >
+        <div class="flex items-start gap-4 flex-wrap">
+          <div
+            class="w-12 h-12 rounded-xl flex items-center justify-center
+                   text-2xl flex-shrink-0"
+            style="background:var(--green-100);"
+          >
+            🌙
+          </div>
+          <div class="flex-1 min-w-0">
+            <h2
+              class="font-serif text-[1.05rem] font-semibold mb-1"
+              style="font-family:'Lora',serif; color:var(--ink);"
+            >
+              Bulan {hijriMonthDesc.name} {todayHijri.year} H
+            </h2>
+            <p class="text-[0.88rem] leading-relaxed mb-3" style="color:var(--ink-light);">
+              {hijriMonthDesc.desc}
+            </p>
+            {hijriMonthDesc.amalan && hijriMonthDesc.amalan.length > 0 && (
+              <div class="flex flex-wrap gap-2">
+                <span class="text-[0.75rem] font-medium" style="color:var(--green-600);">
+                  Amalan:
+                </span>
+                {hijriMonthDesc.amalan.map(amalan => (
+                  <span
+                    class="text-[0.75rem] px-2.5 py-0.5 rounded-full"
+                    style="background:var(--green-100); color:var(--green-700);"
+                  >
+                    {amalan}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
 
   <!-- TOOLS GRID -->
   <section class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] mb-10">

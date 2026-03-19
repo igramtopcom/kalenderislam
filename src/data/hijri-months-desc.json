@@ -1,0 +1,74 @@
+[
+  {
+    "month": 1,
+    "name": "Muharram",
+    "desc": "Muharram adalah bulan pertama dalam kalender Hijriah dan termasuk salah satu dari empat bulan haram (mulia) dalam Islam. Pada bulan ini terdapat hari Asyura (10 Muharram) yang dianjurkan untuk berpuasa sunnah.",
+    "amalan": ["Puasa Asyura (10 Muharram)", "Perbanyak doa dan dzikir"]
+  },
+  {
+    "month": 2,
+    "name": "Safar",
+    "desc": "Safar adalah bulan kedua kalender Hijriah. Tidak ada ibadah khusus yang diwajibkan di bulan ini, namun umat Islam dianjurkan untuk memperbanyak doa dan ibadah sunnah.",
+    "amalan": ["Perbanyak istighfar", "Shalat sunnah rawatib"]
+  },
+  {
+    "month": 3,
+    "name": "Rabiul Awal",
+    "desc": "Rabiul Awal adalah bulan ketiga kalender Hijriah, dikenal sebagai bulan kelahiran Nabi Muhammad SAW. Umat Islam di seluruh dunia memperingati Maulid Nabi pada tanggal 12 Rabiul Awal.",
+    "amalan": ["Peringatan Maulid Nabi (12 Rabiul Awal)", "Perbanyak shalawat"]
+  },
+  {
+    "month": 4,
+    "name": "Rabiul Akhir",
+    "desc": "Rabiul Akhir adalah bulan keempat kalender Hijriah. Bulan ini merupakan waktu yang baik untuk memperbanyak amalan sunnah dan memperdalam ilmu agama.",
+    "amalan": ["Puasa sunnah Senin-Kamis", "Tadarus Al-Quran"]
+  },
+  {
+    "month": 5,
+    "name": "Jumadil Awal",
+    "desc": "Jumadil Awal adalah bulan kelima kalender Hijriah. Namanya berasal dari kata Arab yang berarti 'beku' atau 'kering', menggambarkan musim di jazirah Arab kuno.",
+    "amalan": ["Puasa sunnah", "Perbanyak sedekah"]
+  },
+  {
+    "month": 6,
+    "name": "Jumadil Akhir",
+    "desc": "Jumadil Akhir adalah bulan keenam kalender Hijriah. Bulan ini menjadi penanda bahwa setengah tahun Hijriah telah berlalu, waktu yang baik untuk muhasabah (introspeksi diri).",
+    "amalan": ["Muhasabah diri", "Perbanyak taubat dan istighfar"]
+  },
+  {
+    "month": 7,
+    "name": "Rajab",
+    "desc": "Rajab adalah bulan ketujuh dan termasuk salah satu bulan haram dalam Islam. Pada bulan ini terjadi peristiwa Isra Miraj Nabi Muhammad SAW, yaitu perjalanan malam dari Mekah ke Yerusalem dan naik ke Sidratul Muntaha.",
+    "amalan": ["Puasa sunnah Rajab", "Peringatan Isra Miraj (27 Rajab)", "Perbanyak shalawat"]
+  },
+  {
+    "month": 8,
+    "name": "Syaban",
+    "desc": "Syaban adalah bulan kedelapan kalender Hijriah, bulan yang penuh keutamaan sebelum datangnya Ramadan. Rasulullah SAW banyak berpuasa sunnah di bulan Syaban sebagai persiapan menyambut Ramadan.",
+    "amalan": ["Puasa sunnah Syaban", "Malam Nisfu Syaban (15 Syaban)", "Persiapan menyambut Ramadan"]
+  },
+  {
+    "month": 9,
+    "name": "Ramadan",
+    "desc": "Ramadan adalah bulan kesembilan dan paling mulia dalam kalender Hijriah. Seluruh umat Islam diwajibkan berpuasa dari terbit fajar hingga terbenam matahari. Al-Quran diturunkan pertama kali pada bulan Ramadan, menjadikannya bulan penuh berkah dan ampunan.",
+    "amalan": ["Puasa wajib Ramadan", "Shalat Tarawih", "Tadarus Al-Quran", "I'tikaf (10 hari terakhir)", "Zakat Fitrah"]
+  },
+  {
+    "month": 10,
+    "name": "Syawal",
+    "desc": "Syawal adalah bulan kesepuluh kalender Hijriah. Hari pertama Syawal adalah Idul Fitri, hari raya kemenangan setelah sebulan penuh berpuasa. Puasa sunnah 6 hari di bulan Syawal sangat dianjurkan.",
+    "amalan": ["Idul Fitri (1 Syawal)", "Puasa sunnah 6 hari Syawal", "Silaturahmi"]
+  },
+  {
+    "month": 11,
+    "name": "Dzulqaidah",
+    "desc": "Dzulqaidah adalah bulan kesebelas dan termasuk bulan haram dalam Islam. Ini adalah bulan persiapan menjelang musim haji di bulan berikutnya. Umat Islam dianjurkan memperbanyak ibadah dan menghindari perselisihan.",
+    "amalan": ["Persiapan haji", "Perbanyak ibadah sunnah", "Hindari perselisihan"]
+  },
+  {
+    "month": 12,
+    "name": "Dzulhijjah",
+    "desc": "Dzulhijjah adalah bulan kedua belas dan paling agung dalam kalender Hijriah. Ibadah haji dilaksanakan pada bulan ini, dengan puncaknya pada tanggal 9 Dzulhijjah (Hari Arafah) dan 10 Dzulhijjah (Idul Adha). Sepuluh hari pertama Dzulhijjah adalah hari-hari terbaik dalam setahun.",
+    "amalan": ["Ibadah Haji", "Puasa Arafah (9 Dzulhijjah)", "Idul Adha (10 Dzulhijjah)", "Kurban"]
+  }
+]
