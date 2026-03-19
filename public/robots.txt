@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Disallow API endpoints dari indexing
+Disallow: /api/
+
+# Disallow PDF print pages (konten duplikat dari imsakiyah)
+Disallow: /ramadan/*/pdf
+
+# Sitemap
+Sitemap: https://kalenderislam.id/sitemap-index.xml

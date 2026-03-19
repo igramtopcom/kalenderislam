@@ -12,9 +12,18 @@ export default defineConfig({
   integrations: [
     preact(),
     sitemap({
-      changefreq: 'monthly',
-      priority: 0.7,
-      lastmod: new Date(),
+      filter: (page) => !page.includes('/pdf') && !page.includes('/api/'),
+      serialize(item) {
+        const url = item.url;
+        if (url === 'https://kalenderislam.id/') return { ...item, priority: 1.0, changefreq: 'daily' };
+        if (url.includes('/hari-besar/') && url.includes('/2026')) return { ...item, priority: 0.9, changefreq: 'monthly' };
+        const kotaBesar = ['jakarta','surabaya','bandung','medan','semarang'];
+        if (url.includes('/sholat/') && kotaBesar.some(k => url.includes(`/sholat/${k}`))) return { ...item, priority: 0.9, changefreq: 'daily' };
+        if ((url.includes('/kalender/2026') || url.includes('/ramadan/2026'))) return { ...item, priority: 0.8, changefreq: 'monthly' };
+        if (url.includes('/konversi') || url.includes('/weton')) return { ...item, priority: 0.8, changefreq: 'weekly' };
+        if (url.includes('/libur-nasional/') || url.includes('/kalender-jawa/')) return { ...item, priority: 0.7, changefreq: 'yearly' };
+        return { ...item, priority: 0.5, changefreq: 'yearly' };
+      },
     }),
   ],
   vite: {
