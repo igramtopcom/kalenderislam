@@ -1,12 +1,46 @@
 // SERVER-SIDE ONLY — jangan import dari Islands/TSX
 
 import { supabase } from './supabase';
+import { hijriToGregorian } from './calendar/hijri';
 import type {
   OfficialDate,
   OfficialDateEvent,
   NationalHoliday,
   ProcessedOfficialDate,
 } from './types';
+
+// ─── Algo Fallback for tanggal_perkiraan ─────────────────────────────────────
+
+const EVENT_HIJRI: Record<string, { month: number; day: number }> = {
+  'ramadan_start':  { month: 9,  day: 1  },
+  'idul_fitri':     { month: 10, day: 1  },
+  'idul_adha':      { month: 12, day: 10 },
+  'muharram':       { month: 1,  day: 1  },
+  'maulid_nabi':    { month: 3,  day: 12 },
+  'isra_miraj':     { month: 7,  day: 27 },
+  'nuzulul_quran':  { month: 9,  day: 17 },
+  'lailatul_qadar': { month: 9,  day: 27 },
+  'hari_arafah':    { month: 12, day: 9  },
+};
+
+function calcPerkiraanFromAlgo(event: string, tahun: number): string | null {
+  const ref = EVENT_HIJRI[event];
+  if (!ref) return null;
+
+  const hijriYearEst = tahun - 579;
+  for (const hy of [hijriYearEst, hijriYearEst + 1]) {
+    try {
+      const date = hijriToGregorian(ref.day, ref.month, hy);
+      if (date.getFullYear() === tahun) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+    } catch { continue; }
+  }
+  return null;
+}
 
 // ─── Official Dates ──────────────────────────────────────────────────────────
 
@@ -58,6 +92,11 @@ export async function getOfficialDateByEvent(
  * Prioritas: resmi > muhammadiyah > perkiraan
  */
 function processOfficialDate(row: OfficialDate): ProcessedOfficialDate {
+  // Fallback: calculate tanggal_perkiraan from algorithm if Supabase NULL
+  const tanggalPerkiraan =
+    row.tanggal_perkiraan ??
+    calcPerkiraanFromAlgo(row.event, row.tahun_masehi);
+
   const isConfirmed = row.tanggal_resmi !== null;
 
   let bestDate: string | null = null;
@@ -69,8 +108,8 @@ function processOfficialDate(row: OfficialDate): ProcessedOfficialDate {
   } else if (row.tanggal_muhammadiyah) {
     bestDate = row.tanggal_muhammadiyah;
     source   = 'muhammadiyah';
-  } else if (row.tanggal_perkiraan) {
-    bestDate = row.tanggal_perkiraan;
+  } else if (tanggalPerkiraan) {
+    bestDate = tanggalPerkiraan;
     source   = 'perkiraan';
   }
 
@@ -80,7 +119,7 @@ function processOfficialDate(row: OfficialDate): ProcessedOfficialDate {
     bestDate,
     tanggal_resmi:        row.tanggal_resmi,
     tanggal_muhammadiyah: row.tanggal_muhammadiyah,
-    tanggal_perkiraan:    row.tanggal_perkiraan,
+    tanggal_perkiraan:    tanggalPerkiraan,
     isConfirmed,
     source,
     catatan:              row.catatan,
