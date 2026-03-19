@@ -36,24 +36,26 @@ const holidays      = await getNationalHolidaysSafe(currentYear);
 
 // ── Hari besar mendatang ─────────────────────────────────────────────────────
 const hariBesarList = getAllHariBesar();
-const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+// Use yesterday as cutoff to handle UTC/WIB timezone mismatch during build
+const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
 
 const upcomingEvents = officialDates
   .filter(d => {
     if (!d.bestDate) return false;
-    const eventDate = new Date(d.bestDate + 'T00:00:00');
-    return eventDate >= todayStart;
+    const eventDate = new Date(d.bestDate + 'T12:00:00');
+    return eventDate >= yesterday;
   })
   .sort((a, b) =>
-    new Date(a.bestDate!).getTime() - new Date(b.bestDate!).getTime()
+    new Date(a.bestDate! + 'T12:00:00').getTime() - new Date(b.bestDate! + 'T12:00:00').getTime()
   )
   .slice(0, 4);
 
 // ── Countdown Ramadan ────────────────────────────────────────────────────────
 const ramadanData  = officialDates.find(d => d.event === 'ramadan_start');
-const ramadanDate  = ramadanData?.bestDate ? new Date(ramadanData.bestDate + 'T00:00:00') : null;
+const ramadanDate  = ramadanData?.bestDate ? new Date(ramadanData.bestDate + 'T12:00:00') : null;
+const todayNoonRamadan = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
 const daysToRamadan = ramadanDate
-  ? Math.ceil((ramadanDate.getTime() - todayStart.getTime()) / 86_400_000)
+  ? Math.round((ramadanDate.getTime() - todayNoonRamadan.getTime()) / 86_400_000)
   : null;
 
 const metaTitle = `Kalender Islam ${tahun} — Tanggal Hijriah & Jawa Hari Ini | KalenderIslam.id`;
@@ -176,8 +178,9 @@ const metaDesc  = `Hari ini ${hariIni}, ${tanggal} ${bulan} ${tahun} = ${todayHi
           const hariBesar = hariBesarList.find(h => h.event_id === event.event);
           if (!event.bestDate || !hariBesar) return null;
 
-          const eventDate = new Date(event.bestDate + 'T00:00:00');
-          const daysLeft  = Math.ceil((eventDate.getTime() - todayStart.getTime()) / 86_400_000);
+          const eventDate = new Date(event.bestDate + 'T12:00:00');
+          const todayNoon = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
+          const daysLeft  = Math.max(0, Math.round((eventDate.getTime() - todayNoon.getTime()) / 86_400_000));
           const tglFormatted = eventDate.toLocaleDateString('id-ID', {
             day:'numeric', month:'long', year:'numeric'
           });
