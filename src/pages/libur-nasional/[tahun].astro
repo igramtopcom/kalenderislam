@@ -1,9 +1,186 @@
 ---
-export function getStaticPaths() {
-  return Array.from({ length: 7 }, (_, i) => ({
-    params: { tahun: String(2024 + i) },
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JsonLD from '@/components/seo/JsonLD.astro';
+import { getNationalHolidaysSafe } from '@/lib/data';
+
+export async function getStaticPaths() {
+  return Array.from({ length: 7 }, (_, i) => 2024 + i).map(tahun => ({
+    params: { tahun: String(tahun) },
+    props:  { tahun },
   }));
 }
-const { tahun } = Astro.params;
+
+const { tahun } = Astro.props as { tahun: number };
+const holidays = await getNationalHolidaysSafe(tahun);
+
+const BULAN_INDO = [
+  'Januari','Februari','Maret','April','Mei','Juni',
+  'Juli','Agustus','September','Oktober','November','Desember'
+];
+
+// Group by month — only months with holidays
+const byMonth = BULAN_INDO.map((nama, idx) => ({
+  nama,
+  items: holidays.filter(h => parseInt(h.tanggal.split('-')[1]) - 1 === idx),
+})).filter(m => m.items.length > 0);
+
+const totalLibur = holidays.filter(h => h.tipe === 'libur_nasional').length;
+const totalCuti  = holidays.filter(h => h.tipe === 'cuti_bersama').length;
+const totalIslam = holidays.filter(h => h.agama === 'islam').length;
+
+function formatTanggal(dateStr: string): string {
+  const d = new Date(dateStr + 'T12:00:00');
+  return `${d.getDate()} ${BULAN_INDO[d.getMonth()]}`;
+}
+
+function getDayName(dateStr: string): string {
+  const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  return HARI[new Date(dateStr + 'T12:00:00').getDay()];
+}
+
+const title = `Hari Libur Nasional ${tahun} — Tanggal Merah & Cuti Bersama | KalenderIslam.id`;
+const desc  = `Daftar lengkap hari libur nasional dan cuti bersama ${tahun} berdasarkan SKB 3 Menteri. Total ${totalLibur} hari libur + ${totalCuti} cuti bersama.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: `Hari Libur Nasional Indonesia ${tahun}`,
+  description: desc,
+  numberOfItems: holidays.length,
+  itemListElement: holidays.map((h, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: h.nama,
+    description: `${h.tipe === 'libur_nasional' ? 'Hari Libur Nasional' : 'Cuti Bersama'} — ${h.tanggal}`,
+  })),
+};
 ---
-<html><body><p>Libur Nasional {tahun} — placeholder</p></body></html>
+
+<BaseLayout title={title} description={desc} canonicalPath={`/libur-nasional/${tahun}`}>
+  <JsonLD schema={jsonLd} />
+
+  <div class="max-w-site mx-auto px-[clamp(1rem,4vw,3rem)] py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-6 text-[0.78rem] flex-wrap">
+      <a href="/" class="no-underline" style="color:var(--ink-light) !important;">Beranda</a>
+      <span style="color:var(--ink-light);">›</span>
+      <span class="font-medium" style="color:var(--ink);">Hari Libur {tahun}</span>
+    </div>
+
+    <!-- Header -->
+    <h1 class="text-[1.8rem] font-bold mb-2" style="font-family:'Lora',serif; color:var(--ink);">
+      Hari Libur Nasional {tahun}
+    </h1>
+    <p class="text-[0.9rem] mb-8" style="color:var(--ink-light);">
+      Berdasarkan SKB 3 Menteri (Menaker, Menpan-RB, Menag) Republik Indonesia
+    </p>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      {[
+        { label: 'Total Hari Libur', value: holidays.length, color: 'var(--green-700)', bg: 'var(--green-50)' },
+        { label: 'Libur Nasional',   value: totalLibur,      color: 'var(--green-700)', bg: 'var(--green-50)' },
+        { label: 'Cuti Bersama',     value: totalCuti,       color: 'var(--gold-600)',  bg: 'var(--gold-100)' },
+        { label: 'Hari Besar Islam', value: totalIslam,      color: 'var(--green-600)', bg: 'var(--green-50)' },
+      ].map(stat => (
+        <div class="rounded-2xl p-4 text-center"
+             style={`background:${stat.bg}; border:1px solid rgba(29,107,66,.12);`}>
+          <p class="text-[2rem] font-bold leading-none mb-1"
+             style={`font-family:'Lora',serif; color:${stat.color};`}>{stat.value}</p>
+          <p class="text-[0.75rem]" style="color:var(--ink-light);">{stat.label}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Year tabs -->
+    <div class="flex gap-2 mb-8 flex-wrap">
+      {Array.from({ length: 7 }, (_, i) => 2024 + i).map(y => (
+        <a
+          href={`/libur-nasional/${y}`}
+          class="px-4 py-1.5 rounded-md text-[0.8rem] font-medium no-underline transition-colors duration-150"
+          style={y === tahun
+            ? 'background:var(--green-700); color:white !important;'
+            : 'background:white; color:var(--ink-muted) !important; border:1px solid rgba(29,107,66,.12);'}
+        >
+          {y}
+        </a>
+      ))}
+    </div>
+
+    <!-- List grouped by month -->
+    <div class="space-y-6">
+      {byMonth.map(({ nama, items }) => (
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <h2 class="text-[1.05rem] font-semibold" style="font-family:'Lora',serif; color:var(--ink);">
+              {nama} {tahun}
+            </h2>
+            <span class="text-[0.72rem] font-semibold px-2 py-0.5 rounded-full"
+                  style="background:var(--green-50); color:var(--green-700);">
+              {items.length} hari
+            </span>
+          </div>
+
+          <div class="space-y-2">
+            {items.map(h => (
+              <div class="flex items-center gap-4 rounded-xl p-4"
+                   style="background:white; border:1px solid rgba(29,107,66,.12);">
+                {/* Date box: green-700 for libur, gold-100 for cuti */}
+                <div class="min-w-[52px] h-[52px] rounded-xl flex flex-col items-center justify-center flex-shrink-0 text-center"
+                     style={h.tipe === 'libur_nasional'
+                       ? 'background:var(--green-700);'
+                       : 'background:var(--gold-100); border:1px solid rgba(201,162,39,.3);'}>
+                  <span class="text-[1.1rem] font-bold leading-none"
+                        style={h.tipe === 'libur_nasional' ? 'color:white;' : 'color:var(--gold-600);'}>
+                    {new Date(h.tanggal + 'T12:00:00').getDate()}
+                  </span>
+                  <span class="text-[0.6rem] font-medium uppercase"
+                        style={h.tipe === 'libur_nasional' ? 'color:var(--green-200);' : 'color:var(--gold-600);'}>
+                    {getDayName(h.tanggal).slice(0, 3)}
+                  </span>
+                </div>
+
+                {/* Info */}
+                <div class="flex-1 min-w-0">
+                  <p class="text-[0.9rem] font-semibold truncate" style="color:var(--ink);">{h.nama}</p>
+                  <p class="text-[0.75rem] mt-0.5" style="color:var(--ink-light);">
+                    {getDayName(h.tanggal)}, {formatTanggal(h.tanggal)} {tahun}
+                  </p>
+                </div>
+
+                {/* Badges */}
+                <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span class="text-[0.65rem] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+                        style={h.tipe === 'libur_nasional'
+                          ? 'background:var(--gold-100); color:var(--gold-600);'
+                          : 'background:var(--green-100); color:var(--green-700);'}>
+                    {h.tipe === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
+                  </span>
+                  {h.agama && (
+                    <span class="text-[0.62rem] px-2 py-0.5 rounded-full whitespace-nowrap"
+                          style="background:var(--green-50); color:var(--ink-light);">
+                      {h.agama === 'islam' ? 'Islam'
+                        : h.agama === 'kristen' ? 'Kristen'
+                        : h.agama === 'hindu' ? 'Hindu'
+                        : 'Nasional'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Source note -->
+    <div class="mt-8 rounded-xl p-4 text-[0.82rem] leading-relaxed"
+         style="background:var(--green-50); border:1px solid rgba(29,107,66,.12); color:var(--ink-light);">
+      <strong style="color:var(--ink);">Sumber data:</strong> Surat Keputusan Bersama (SKB)
+      Menteri Ketenagakerjaan, Menteri Pendayagunaan Aparatur Negara & Reformasi Birokrasi,
+      dan Menteri Agama Republik Indonesia.
+    </div>
+
+  </div>
+</BaseLayout>
